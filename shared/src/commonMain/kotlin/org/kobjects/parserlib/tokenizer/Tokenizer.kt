@@ -2,9 +2,11 @@ package org.kobjects.parserlib.tokenizer
 
 /**
  * Tokenizer. Typically parameterized with an enum type denoting the type of token.
+ * Regular expressions paired with a null token are not reported. This is useful for
+ * skipping insignificant whitespace or comments.
  */
 class Tokenizer<T>(
-    val types: List<Pair<Regex, T>>,
+    val types: List<Pair<Regex, T?>>,
     val bofType: T,
     val eofType: T,
     val input: String
@@ -12,21 +14,26 @@ class Tokenizer<T>(
     var pos = 0
     var current: Token<T> = Token(0, 0, 0, bofType, "<BOF>")
 
+    @OptIn(ExperimentalStdlibApi::class)
     fun next(): Token<T> {
         while (pos < input.length) {
             val oldPos = pos
             for (candidate in types) {
                 val regex = candidate.first
-                val match = regex.find(input.subSequence(pos, input.length))
+                val match = regex.matchAt(input, pos)
                 if (match != null) {
-                    if (match.range.start > 0) {
-                        throw IllegalArgumentException("Token expression does not start with \\A: $regex")
+                    if (match.range.first > 0) {
+                        throw IllegalArgumentException("Token expression not matched at start: $regex")
                     }
                     if (match.range.isEmpty()) {
                         throw IllegalArgumentException("Empty range for expression: $regex")
                     }
                     pos += match.value.length
+
+                    // Matches without type are not reported. Useful for whitespace and
+                    // potentially comments.
                     val type = candidate.second ?: break
+
                     current = Token<T>(pos, 0, pos, type, match.value)
                     return current
                 }
