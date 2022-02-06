@@ -17,7 +17,7 @@ Simple usage examples can be found in the [TokenizerTest](shared/src/commonTest/
 The expression parser operates on a tokenizer, is stateless and should be shared / reused.
 
 - For ternary expressions, create a suffix expression and use the supplied tokenizer to consume the rest of the ternary.
-- Functions / "Apply" can be implemented in a similar way. Alternatively, they can be implemented in primary expression parsing by checking for
+- Functions / "Apply" can be implemented in a similar way. Alternatively, this can be implemented in primary expression parsing by checking for
   an opening brace after the primary expression.
 - "Grouping" brackets should be implemented where primary expressions are processed, too. 
 
