@@ -1,6 +1,6 @@
-# parserlib
+# ParserLib
 
-Kotlin library for building parsers, consisting mainly of a tokenizer and expression parser.
+Small Kotlin library for building recursive descent parsers, consisting mainly of a tokenizer and expression parser.
 
 
 ## Tokenizer
