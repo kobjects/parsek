@@ -1,5 +1,5 @@
 # parserlib
 
-Kotlin library for building custom parsers
+Kotlin library for building parsers
 
-(This is work in progress)
+Currently only contains a tokenizer. 
