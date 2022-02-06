@@ -6,25 +6,28 @@ package org.kobjects.parserlib.tokenizer
  * skipping insignificant whitespace or comments.
  */
 class Tokenizer<T>(
-    val types: List<Pair<Regex, T?>>,
     val bofType: T,
+    val types: List<Pair<Regex, T?>>,
     val eofType: T,
     val input: String
 ) {
     var pos = 0
     var current: Token<T> = Token(0, 0, 0, bofType, "<BOF>")
+    var skipped = false
+    var eof = false
 
     @OptIn(ExperimentalStdlibApi::class)
     fun next(): Token<T> {
+        skipped = false
         while (pos < input.length) {
             val oldPos = pos
             for (candidate in types) {
                 val regex = candidate.first
                 val match = regex.matchAt(input, pos)
                 if (match != null) {
-                    if (match.range.first > 0) {
+                    /*                    if (match.range.first > 0) {
                         throw IllegalArgumentException("Token expression not matched at start: $regex")
-                    }
+                    }*/
                     if (match.range.isEmpty()) {
                         throw IllegalArgumentException("Empty range for expression: $regex")
                     }
@@ -32,8 +35,11 @@ class Tokenizer<T>(
 
                     // Matches without type are not reported. Useful for whitespace and
                     // potentially comments.
-                    val type = candidate.second ?: break
-
+                    val type = candidate.second
+                    if (type == null) {
+                        skipped = true
+                        break
+                    }
                     current = Token<T>(pos, 0, pos, type, match.value)
                     return current
                 }
@@ -43,6 +49,7 @@ class Tokenizer<T>(
             }
         }
         current = Token(pos, 0, 0, eofType, "<EOF>")
+        eof = true
         return current
     }
 
