@@ -9,7 +9,7 @@ The tokenizer is stateful and can't be reused
 
 The RegularExpressions class contains a set of useful regular expressions for parsing "C-Style" code.
 
-Simple usage examples can be found in the [TokenizerTest](shared/commonTest/kotlin/org/kobjects/parserlib/tokenizer/TokenizerTest.kt)
+Simple usage examples can be found in the [TokenizerTest](shared/src/commonTest/kotlin/org/kobjects/parserlib/tokenizer/TokenizerTest.kt)
 
 
 ## Parser
@@ -20,4 +20,4 @@ The expression parser operates on a tokenizer, is stateless and should be shared
 - Functions / "Apply" can be implemented in a similar way. Alternatively, they can be implemented in processing primary expressions.
 - "Grouping" brackets should be implemented where primary expressions are processed, too. 
 
-Again, simple usage examples can be found in the [tests](shared/commonTest/kotlin/org/kobjects/parserlib/expressionparser/ParserTest.kt)
+Again, simple usage examples can be found in the [tests](shared/src/commonTest/kotlin/org/kobjects/parserlib/expressionparser/ParserTest.kt)
