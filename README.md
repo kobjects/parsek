@@ -12,7 +12,7 @@ The RegularExpressions class contains a set of useful regular expressions for pa
 Simple usage examples can be found in the [TokenizerTest](shared/src/commonTest/kotlin/org/kobjects/parserlib/tokenizer/TokenizerTest.kt)
 
 
-## Parser
+## Expression Parser
 
 The expression parser operates on a tokenizer, is stateless and should be shared / reused.
 
