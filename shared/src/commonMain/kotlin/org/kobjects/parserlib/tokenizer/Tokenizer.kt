@@ -25,9 +25,6 @@ class Tokenizer<T>(
                 val regex = candidate.first
                 val match = regex.matchAt(input, pos)
                 if (match != null) {
-                    /*                    if (match.range.first > 0) {
-                        throw IllegalArgumentException("Token expression not matched at start: $regex")
-                    }*/
                     if (match.range.isEmpty()) {
                         throw IllegalArgumentException("Empty range for expression: $regex")
                     }
