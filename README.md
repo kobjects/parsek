@@ -5,7 +5,7 @@ Small Kotlin library for building recursive descent parsers, consisting mainly o
 
 ## Tokenizer
 
-The tokenizer is stateful and can't be reused 
+Tokenizer instances are stateful and can't be reused.
 
 The RegularExpressions class contains a set of useful regular expressions for parsing "C-Style" code.
 
