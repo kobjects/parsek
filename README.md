@@ -1,11 +1,11 @@
-# parserlib
+# ParserLib
 
-Kotlin library for building parsers, consisting mainly of a tokenizer and expression parser.
+Small Kotlin library for building recursive descent parsers, consisting mainly of a tokenizer and expression parser.
 
 
 ## Tokenizer
 
-The tokenizer is stateful and can't be reused 
+Tokenizer instances are stateful and can't be reused.
 
 The RegularExpressions class contains a set of useful regular expressions for parsing "C-Style" code.
 
