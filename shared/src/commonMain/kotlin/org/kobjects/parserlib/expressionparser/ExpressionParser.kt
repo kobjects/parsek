@@ -109,7 +109,7 @@ abstract class ExpressionParser<T, R> (
             vararg names: String,
             builder: (Tokenizer<T>, String, R, R) -> R
         ): Configuration<T, R> {
-            var infixOrSuffix = mutableMapOf<String, Symbol<T, R>>()
+            val infixOrSuffix = mutableMapOf<String, Symbol<T, R>>()
             for (name in names) {
                 infixOrSuffix[name] = Symbol.Binary(precedence, rtl = false, builder)
             }
@@ -121,7 +121,7 @@ abstract class ExpressionParser<T, R> (
             vararg names: String,
             builder: (Tokenizer<T>, String, R, R) -> R
         ): Configuration<T, R> {
-            var infixOrSuffix = mutableMapOf<String, Symbol<T, R>>()
+            val infixOrSuffix = mutableMapOf<String, Symbol<T, R>>()
             for (name in names) {
                 infixOrSuffix[name] = Symbol.Binary(precedence, rtl = true, builder)
             }
@@ -133,7 +133,7 @@ abstract class ExpressionParser<T, R> (
             vararg names: String,
             builder: (Tokenizer<T>, String, R) -> R
         ): Configuration<T, R> {
-            var infixOrSuffix = mutableMapOf<String, Symbol<T, R>>()
+            val infixOrSuffix = mutableMapOf<String, Symbol<T, R>>()
             for (name in names) {
                 infixOrSuffix[name] = Symbol.Unary(precedence, builder)
             }
