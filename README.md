@@ -22,3 +22,11 @@ The expression parser operates on a tokenizer, is stateless and should be shared
 - "Grouping" brackets should be implemented where primary expressions are processed, too. 
 
 Again, simple usage examples can be found in the [tests](shared/src/commonTest/kotlin/org/kobjects/parserlib/expressionparser/ParserTest.kt)
+
+## Examples
+
+### PL/0
+
+A complete [PL/0](https://en.wikipedia.org/wiki/PL/0) parser is included in the examples module to 
+[illustratex  how to use the expression parser and tokenizer](https://github.com/kobjects/parserlib/blob/main/examples/src/commonMain/kotlin/org/kobjects/parserlib/examples/pl0/Parser.kt) 
+for a simple but fully working and computational complete language.
