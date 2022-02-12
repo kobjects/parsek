@@ -1,4 +1,4 @@
-package org.kobjects.parserlib.pl0
+package org.kobjects.parserlib.examples.pl0
 
 interface Condition {
     fun eval(context: EvaluationContext): Boolean

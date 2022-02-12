@@ -1,6 +1,5 @@
-package org.kobjects.parserlib.pl0
+package org.kobjects.parserlib.examples.pl0
 
-import org.kobjects.parserlib.playground.parse
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -32,7 +31,8 @@ class Pl0Test {
 
     @Test
     fun testFizzBuzz() {
-        val program = parseProgram(Pl0Tokenizer(fizzBuzz))
+        val program = parseProgram(Pl0Tokenizer(fizzBuzz)
+        )
 
         val result = mutableListOf<Int>()
 

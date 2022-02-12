@@ -1,8 +1,10 @@
-package org.kobjects.parserlib.pl0
+package org.kobjects.parserlib.examples.pl0
 
 import org.kobjects.parserlib.expressionparser.ExpressionParser
 import org.kobjects.parserlib.tokenizer.RegularExpressions
 import org.kobjects.parserlib.tokenizer.Tokenizer
+
+fun parseProgram(text: String): Program = parseProgram(Pl0Tokenizer(text))
 
 // program = block "." .
 fun parseProgram(tokenizer: Pl0Tokenizer): Program {
@@ -51,7 +53,7 @@ fun parseBlock(tokenizer: Pl0Tokenizer, parentContext: ParsingContext?): Block {
         if (procedureNames.contains(name)) {
             tokenizer.error("Duplicate procedure name $name")
         }
-        procedureNames.add(name)
+        procedureNames.add(name)  // Permit recursion
         val block = parseBlock(tokenizer, ParsingContext(parentContext, symbols, procedureNames))
         tokenizer.consume(";")
         procedures.put(name, block);
@@ -154,7 +156,7 @@ class Pl0Tokenizer(input: String) : Tokenizer<TokenType>(
         Regex("[0-9]+") to TokenType.NUMBER,
         Regex("[a-zA-Z]+") to TokenType.IDENTIFIER,
         Regex("\\+|-|\\*|/") to TokenType.OPERATOR,
-                Regex("<=|>=|=|<|>|#") to TokenType.COMPARISON,
+        Regex("<=|>=|=|<|>|#") to TokenType.COMPARISON,
         Regex("\\(|\\)|:=|;|\\.|!|\\?") to TokenType.SYMBOL
     ),
     TokenType.EOF,

@@ -1,4 +1,4 @@
-package org.kobjects.parserlib.pl0
+package org.kobjects.parserlib.examples.pl0
 
 
 data class Program(val block: Block) {
@@ -12,7 +12,8 @@ data class Program(val block: Block) {
                 GlobalContext(write, read),
                 null,
                 mutableMapOf(),
-                mapOf()))
+                mapOf())
+        )
     }
 }
 
@@ -27,7 +28,8 @@ data class Block(
                 context.globalContext,
                 context,
                 symbols.toMutableMap(),
-                procedures))
+                procedures)
+        )
     }
 }
 
