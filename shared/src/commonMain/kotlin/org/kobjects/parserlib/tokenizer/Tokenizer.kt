@@ -5,13 +5,15 @@ package org.kobjects.parserlib.tokenizer
  * Regular expressions paired with a null token are not reported. This is useful for
  * skipping insignificant whitespace or comments.
  */
-class Tokenizer<T>(
+open class Tokenizer<T>(
     val bofType: T,
     val types: List<Pair<Regex, T?>>,
     val eofType: T,
     val input: String
 ) {
     var pos = 0
+    var col = 0
+    var line = 0
     var current: Token<T> = Token(0, 0, 0, bofType, "<BOF>")
     var skipped = false
     var eof = false
@@ -20,15 +22,29 @@ class Tokenizer<T>(
     fun next(): Token<T> {
         skipped = false
         while (pos < input.length) {
-            val oldPos = pos
+            val startPos = pos
+            val startCol = col
+            val startLine = line
             for (candidate in types) {
                 val regex = candidate.first
                 val match = regex.matchAt(input, pos)
                 if (match != null) {
+                    val startPos = pos
                     if (match.range.isEmpty()) {
                         throw IllegalArgumentException("Empty range for expression: $regex")
                     }
-                    pos += match.value.length
+                    val text = match.value
+                    var newlinePos = text.indexOf('\n')
+                    if (newlinePos == -1) {
+                        col += text.length
+                    } else {
+                        do {
+                            line++
+                            col = text.length - newlinePos
+                            newlinePos = text.indexOf('\n', newlinePos + 1)
+                        } while (newlinePos != -1)
+                    }
+                    pos += text.length
 
                     // Matches without type are not reported. Useful for whitespace and
                     // potentially comments.
@@ -37,12 +53,12 @@ class Tokenizer<T>(
                         skipped = true
                         break
                     }
-                    current = Token<T>(pos, 0, pos, type, match.value)
+                    current = Token<T>(startPos, startLine, startCol, type, match.value)
                     return current
                 }
             }
-            if (oldPos == pos) {
-                throw error("No token matched");
+            if (startPos == pos) {
+                throw error("No token matched '${input.substring(pos, pos + 10)}...'}");
             }
         }
         current = Token(pos, 0, 0, eofType, "<EOF>")
@@ -75,8 +91,7 @@ class Tokenizer<T>(
      * is returned. Otherwise, false is returned.
      */
     fun tryConsume(value: String): Boolean {
-        val token = current
-        if (token != null && token.value == value) {
+        if (current.value == value) {
             next()
             return true
         }
