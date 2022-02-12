@@ -45,7 +45,13 @@ class EvaluationContext(
     val procedures: Map<String, Block>
 ) {
     fun get(name: String): Int = symbols[name] ?: parent!!.get(name)
-    fun set(name: String, value: Int) = symbols.put(name, value)
+    fun set(name: String, value: Int) {
+        if (symbols.containsKey(name)) {
+            symbols.put(name, value)
+        } else {
+            parent!!.set(name, value)
+        }
+    }
     fun call(name: String) {
         // We need to call from the right context to avoid potentially wrong shadowing effects.
         val procedure = procedures[name]
