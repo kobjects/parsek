@@ -64,22 +64,24 @@ fun parseBlock(tokenizer: Pl0Tokenizer, parentContext: ParsingContext?): Block {
     return Block(symbols.mapValues {  it.value ?: 0 }, procedures, statement)
 }
 
-// statement = [
+// statement = [ ident ":=" expression
 //   | "CALL" ident
 //   | "?" ident
 //   | "!" expression
 //   | "BEGIN" statement {";" statement } "END"
 //   | "IF" condition "THEN" statement
-//   | "WHILE" condition "DO" statement
-//   | ident ":=" expression ];
-fun parseStatement(tokenizer: Pl0Tokenizer, context: ParsingContext): Statement {
-    val result: Statement
-    if (tokenizer.tryConsume("CALL")) {
+//   | "WHILE" condition "DO" statement ];
+fun parseStatement(tokenizer: Pl0Tokenizer, context: ParsingContext): Statement =
+    if (tokenizer.current.type == TokenType.IDENT) {
+        val variable = tokenizer.consume(TokenType.IDENT)
+        tokenizer.consume(":=")
+        Assignment(variable, parseExpression(tokenizer, context))
+    } else if (tokenizer.tryConsume("CALL")) {
         val name = tokenizer.consume(TokenType.IDENT)
         if (!context.procedureNames.contains(name)) {
             throw tokenizer.error("Undefined procedure $name")
         }
-        result = Call(name)
+        Call(name)
     } else if (tokenizer.tryConsume("?")) {
         val variable = tokenizer.consume(TokenType.IDENT)
         if (!context.symbols.containsKey(variable)) {
@@ -88,37 +90,27 @@ fun parseStatement(tokenizer: Pl0Tokenizer, context: ParsingContext): Statement 
         if (context.symbols[variable] != null) {
             throw tokenizer.error("Can't read constant $variable")
         }
-        result = Read(variable)
+        Read(variable)
     } else if (tokenizer.tryConsume("!")) {
-        result = Write(parseExpression(tokenizer, context))
+        Write(parseExpression(tokenizer, context))
     } else if (tokenizer.tryConsume("BEGIN")) {
         val statements = mutableListOf<Statement>()
         do {
             statements.add(parseStatement(tokenizer, context))
         } while (tokenizer.tryConsume(";"))
         tokenizer.consume("END")
-        return BeginEnd(statements)
+        BeginEnd(statements)
     } else if (tokenizer.tryConsume("IF")) {
         val condition = parseCondition(tokenizer, context)
         tokenizer.consume("THEN")
-        result = If(condition, parseStatement(tokenizer, context))
+        If(condition, parseStatement(tokenizer, context))
     } else if (tokenizer.tryConsume("WHILE")) {
         val condition = parseCondition(tokenizer, context)
         tokenizer.consume("DO")
-        result = While(condition, parseStatement(tokenizer, context))
-    } else if (tokenizer.current.value == "END"
-        || tokenizer.current.value == ";"
-        || tokenizer.current.value == ".") {
-        // Hack to detect empty statements without lookahead for ":="
-        result = EmptyStatement()
+        While(condition, parseStatement(tokenizer, context))
     } else {
-        // Has to be an Assignment if we get here...
-        val variable = tokenizer.consume(TokenType.IDENT)
-        tokenizer.consume(":=")
-        result = Assignment(variable, parseExpression(tokenizer, context))
+        EmptyStatement()
     }
-    return result
-}
 
 // condition = "ODD" expression |
 //             expression ("="|"#"|"<"|"<="|">"|">=") expression ;
@@ -177,13 +169,14 @@ class ParsingContext(
 }
 
 enum class TokenType {
-    BOF, IDENT, NUMBER, COMPARISON, SYMBOL, EOF
+    BOF, IDENT, KEYWORD, NUMBER, COMPARISON, SYMBOL, EOF
 }
 
 class Pl0Tokenizer(input: String) : Tokenizer<TokenType>(
     TokenType.BOF,
     listOf(
         RegularExpressions.WHITESPACE to null,
+        Regex("BEGIN|CALL|CONST|DO|END|IF|ODD|PROCEDURE|THEN|VAR|WHILE") to TokenType.KEYWORD,
         Regex("[0-9]+") to TokenType.NUMBER,
         Regex("[a-zA-Z]+") to TokenType.IDENT,
         Regex("<=|>=|=|<|>|#") to TokenType.COMPARISON,
