@@ -8,14 +8,23 @@ data class Odd(val experession: Expression) : Condition {
     override fun eval(context: EvaluationContext): Boolean = (experession.eval(context) % 2) != 0
 }
 
-data class Comparison(
+data class RelationalOperation(
     val name: String,
-    val left: Expression,
-    val right: Expression,
-    val implementation: (Int, Int) -> Boolean
+    val leftChild: Expression,
+    val rightChild: Expression
 ) : Condition {
-    override fun eval(context: EvaluationContext) =
-        implementation(left.eval(context), right.eval(context))
-    override fun toString() = "$left $name $right"
+    override fun eval(context: EvaluationContext): Boolean {
+        val leftValue = leftChild.eval(context)
+        val rightValue = rightChild.eval(context)
+        return when (name) {
+            "=" -> leftValue == rightValue
+            "#" -> leftValue != rightValue
+            "<" -> leftValue < rightValue
+            "<=" -> leftValue <= rightValue
+            ">" -> leftValue > rightValue
+            ">=" -> leftValue >= rightValue
+            else -> throw UnsupportedOperationException(name)
+        }
+    }
+    override fun toString() = "$leftChild $name $rightChild"
 }
-

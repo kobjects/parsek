@@ -1,6 +1,8 @@
 package org.kobjects.parserlib.examples.pl0
 
-
+/**
+ * For information about pl/0, please refer to https://en.wikipedia.org/wiki/PL/0
+ */
 data class Program(val block: Block) {
 
     fun eval(
@@ -15,6 +17,8 @@ data class Program(val block: Block) {
                 mapOf())
         )
     }
+
+    override fun toString(): String = "$block."
 }
 
 data class Block(
@@ -30,6 +34,27 @@ data class Block(
                 symbols.toMutableMap(),
                 procedures)
         )
+    }
+
+    override fun toString(): String = toString("")
+
+    fun toString(indent: String): String {
+        val sb = StringBuilder()
+        // Note that This is incorrect if we define a 0 constant...
+        if (symbols.any { it.value != 0 }) {
+            sb.append(symbols
+                .filter { it.value != 0 }
+                .entries.map { "${it.key} = ${it.value}" }
+                .joinToString(", ", "${indent}CONST ", ";\n"))
+        }
+        if (symbols.containsValue(0)) {
+            sb.append(symbols.filter { it.value == 0 }.keys.joinToString(", ", "${indent}VAR ", ";\n"))
+        }
+        for (procedure in procedures.entries) {
+            sb.append("${indent}PROCEDURE ${procedure.key}; ${procedure.value};\n")
+        }
+        sb.append(statement.toString(indent))
+        return sb.toString()
     }
 }
 

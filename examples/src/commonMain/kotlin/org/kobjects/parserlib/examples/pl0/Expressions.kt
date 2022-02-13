@@ -4,23 +4,29 @@ interface Expression {
     fun eval(context: EvaluationContext): Int
 }
 
-data class UnaryExpression(
-    val name: String,
-    val operand: Expression,
-    val implementation: (Int) -> Int
-) : Expression {
-    override fun eval(context: EvaluationContext) = implementation(operand.eval(context))
-    override fun toString() = "$name $operand"
+data class Negate(val operand: Expression) : Expression {
+    override fun eval(context: EvaluationContext) = -operand.eval(context)
+    override fun toString() = "-$operand"
 }
 
-data class BinaryExpression(
-    val operation: String,
-    val left: Expression,
-    val right: Expression,
-    val implementation: (Int, Int) -> Int) :
-    Expression {
-    override fun eval(context: EvaluationContext) = implementation(left.eval(context), right.eval(context))
-    override fun toString() = "($left $operation $right)"
+data class BinaryOperation(
+    val name: String,
+    val leftOperand: Expression,
+    val rightOperand: Expression
+) : Expression {
+    override fun eval(context: EvaluationContext): Int {
+        val leftValue = leftOperand.eval(context)
+        val rightValue = rightOperand.eval(context)
+        return when (name) {
+            "-" -> leftValue - rightValue
+            "+" -> leftValue + rightValue
+            "/" -> leftValue / rightValue
+            "*" -> leftValue * rightValue
+            else -> throw UnsupportedOperationException(name)
+        }
+    }
+    // We need to insert parens to keep the precedence order as we don't keep them explicitly
+    override fun toString() = "($leftOperand $name $rightOperand)"
 }
 
 data class Number(

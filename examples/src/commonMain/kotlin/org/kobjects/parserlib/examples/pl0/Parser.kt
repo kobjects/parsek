@@ -15,13 +15,16 @@ fun parseProgram(tokenizer: Pl0Tokenizer): Program {
     return result
 }
 
-// block      =
+// block =
+//   [ "CONST" ident "=" number { "," ident "=" number } ";" ]
+//   [ "VAR" ident { "," ident } ";" ]
+//   { "PROCEDURE" ident ";" block ";" }
+//   statement .
 fun parseBlock(tokenizer: Pl0Tokenizer, parentContext: ParsingContext?): Block {
-    // [ "CONST" ident "=" number { "," ident "=" number } ";" ]
-    val symbols = mutableMapOf<String, Int?>()
+    val symbols = mutableMapOf<String, Int?>()  // We use null as value for variables here.
     if (tokenizer.tryConsume("CONST")) {
         do {
-            val name = tokenizer.consume(TokenType.IDENTIFIER)
+            val name = tokenizer.consume(TokenType.IDENT)
             tokenizer.consume("=")
             val value = tokenizer.consume(TokenType.NUMBER).toInt()
             if (symbols.containsKey(name)) {
@@ -31,11 +34,9 @@ fun parseBlock(tokenizer: Pl0Tokenizer, parentContext: ParsingContext?): Block {
         } while (tokenizer.tryConsume(","))
         tokenizer.consume(";")
     }
-
-    // [ "VAR" ident { "," ident } ";" ]
     if (tokenizer.tryConsume("VAR")) {
         do {
-            val name = tokenizer.consume(TokenType.IDENTIFIER)
+            val name = tokenizer.consume(TokenType.IDENT)
             if (symbols.containsKey(name)) {
                 throw tokenizer.error("Duplicate symbol $name")
             }
@@ -43,12 +44,10 @@ fun parseBlock(tokenizer: Pl0Tokenizer, parentContext: ParsingContext?): Block {
         } while (tokenizer.tryConsume(","))
         tokenizer.consume(";")
     }
-
-    // { "PROCEDURE" ident ";" block ";" } statement .
     val procedures = mutableMapOf<String, Block>()
     val procedureNames = mutableSetOf<String>()
     while (tokenizer.tryConsume("PROCEDURE")) {
-        val name = tokenizer.consume(TokenType.IDENTIFIER)
+        val name = tokenizer.consume(TokenType.IDENT)
         tokenizer.consume(";")
         if (procedureNames.contains(name)) {
             tokenizer.error("Duplicate procedure name $name")
@@ -60,83 +59,90 @@ fun parseBlock(tokenizer: Pl0Tokenizer, parentContext: ParsingContext?): Block {
     }
     val statement = parseStatement(tokenizer, ParsingContext(parentContext, symbols, procedureNames))
 
+    // The parser checks that constants are not overwritten, so we don't need the distinction
+    // any longer and replaces nulls with 0.
     return Block(symbols.mapValues {  it.value ?: 0 }, procedures, statement)
 }
 
+// statement = [
+//   | "CALL" ident
+//   | "?" ident
+//   | "!" expression
+//   | "BEGIN" statement {";" statement } "END"
+//   | "IF" condition "THEN" statement
+//   | "WHILE" condition "DO" statement
+//   | ident ":=" expression ];
 fun parseStatement(tokenizer: Pl0Tokenizer, context: ParsingContext): Statement {
+    val result: Statement
     if (tokenizer.tryConsume("CALL")) {
-        val name = tokenizer.consume(TokenType.IDENTIFIER)
+        val name = tokenizer.consume(TokenType.IDENT)
         if (!context.procedureNames.contains(name)) {
             throw tokenizer.error("Undefined procedure $name")
         }
-        return Call(name)
-    }
-    if (tokenizer.tryConsume("?")) {
-        val variable = tokenizer.consume(TokenType.IDENTIFIER)
+        result = Call(name)
+    } else if (tokenizer.tryConsume("?")) {
+        val variable = tokenizer.consume(TokenType.IDENT)
         if (!context.symbols.containsKey(variable)) {
             throw tokenizer.error("Undefined variable $variable")
         }
         if (context.symbols[variable] != null) {
             throw tokenizer.error("Can't read constant $variable")
         }
-        return Read(variable)
-    }
-    if (tokenizer.tryConsume("!")) {
-        return Write(parseExpression(tokenizer, context))
-    }
-    if (tokenizer.tryConsume("BEGIN")) {
+        result = Read(variable)
+    } else if (tokenizer.tryConsume("!")) {
+        result = Write(parseExpression(tokenizer, context))
+    } else if (tokenizer.tryConsume("BEGIN")) {
         val statements = mutableListOf<Statement>()
         do {
             statements.add(parseStatement(tokenizer, context))
         } while (tokenizer.tryConsume(";"))
         tokenizer.consume("END")
         return BeginEnd(statements)
-    }
-    if (tokenizer.tryConsume("IF")) {
+    } else if (tokenizer.tryConsume("IF")) {
         val condition = parseCondition(tokenizer, context)
         tokenizer.consume("THEN")
-        return If(condition, parseStatement(tokenizer, context))
-    }
-    if (tokenizer.tryConsume("WHILE")) {
+        result = If(condition, parseStatement(tokenizer, context))
+    } else if (tokenizer.tryConsume("WHILE")) {
         val condition = parseCondition(tokenizer, context)
         tokenizer.consume("DO")
-        return While(condition, parseStatement(tokenizer, context))
+        result = While(condition, parseStatement(tokenizer, context))
+    } else if (tokenizer.current.value == "END"
+        || tokenizer.current.value == ";"
+        || tokenizer.current.value == ".") {
+        // Hack to detect empty statements without lookahead for ":="
+        result = EmptyStatement()
+    } else {
+        // Has to be an Assignment if we get here...
+        val variable = tokenizer.consume(TokenType.IDENT)
+        tokenizer.consume(":=")
+        result = Assignment(variable, parseExpression(tokenizer, context))
     }
-
-    // Assignment
-    val variable = tokenizer.consume(TokenType.IDENTIFIER)
-    tokenizer.consume(":=")
-    return Assignment(variable, parseExpression(tokenizer, context))
+    return result
 }
 
+// condition = "ODD" expression |
+//             expression ("="|"#"|"<"|"<="|">"|">=") expression ;
 fun parseCondition(tokenizer: Pl0Tokenizer, context: ParsingContext) : Condition {
     if (tokenizer.tryConsume("ODD")) {
         return Odd(parseExpression(tokenizer, context));
     }
     val left = parseExpression(tokenizer, context)
     val name = tokenizer.consume(TokenType.COMPARISON)
-    val right = parseExpression(tokenizer, context)
-    val comparator : (Int, Int) -> Boolean = when (name) {
-        "=" -> { l, r -> l == r}
-        "#" -> { l, r -> l != r}
-        "<" -> { l, r -> l < r}
-        "<=" -> { l, r -> l <= r}
-        ">" -> { l, r -> l > r}
-        ">=" -> { l, r -> l >= r}
-        else -> throw tokenizer.error("Unrecognized comparison $name")
-    }
-    return Comparison(name, left, right, comparator)
+    return RelationalOperation(name, left, parseExpression(tokenizer, context))
 }
 
+// Implemented using the expression parser to reduce code size (also to avoid
+// building a right-hanging tree without extra complexity)
 fun parseExpression(tokenizer: Pl0Tokenizer, context: ParsingContext) =
     expressionParser.parse(tokenizer, context)
 
+// factor = ident | number | "(" expression ")";
 fun parseFactor(tokenizer: Pl0Tokenizer, context: ParsingContext): Expression =
     when (tokenizer.current.type) {
         TokenType.NUMBER ->
             Number(tokenizer.consume(TokenType.NUMBER).toInt())
-        TokenType.IDENTIFIER ->
-            Symbol(tokenizer.consume(TokenType.IDENTIFIER))
+        TokenType.IDENT ->
+            Symbol(tokenizer.consume(TokenType.IDENT))
         else -> {
             tokenizer.consume("(")
             val result = parseExpression(tokenizer, context)
@@ -145,26 +151,19 @@ fun parseFactor(tokenizer: Pl0Tokenizer, context: ParsingContext): Expression =
         }
     }
 
-enum class TokenType {
-    BOF, IDENTIFIER, NUMBER, OPERATOR, COMPARISON, SYMBOL, EOF
-}
-
-class Pl0Tokenizer(input: String) : Tokenizer<TokenType>(
-    TokenType.BOF,
-    listOf(
-        RegularExpressions.WHITESPACE to null,
-        Regex("[0-9]+") to TokenType.NUMBER,
-        Regex("[a-zA-Z]+") to TokenType.IDENTIFIER,
-        Regex("\\+|-|\\*|/") to TokenType.OPERATOR,
-        Regex("<=|>=|=|<|>|#") to TokenType.COMPARISON,
-        Regex("\\(|\\)|:=|;|\\.|!|\\?") to TokenType.SYMBOL
-    ),
-    TokenType.EOF,
-    input
-)
+// expression = [ "+"|"-"] term { ("+"|"-") term};
+// term = factor {("*"|"/") factor};
+val expressionParser = ExpressionParser<Pl0Tokenizer, ParsingContext, Expression>(
+    ExpressionParser.prefix(0, "+") { _, _, _, operand -> operand },
+    ExpressionParser.prefix(0, "-") { _, _, _, operand -> Negate(operand) },
+    ExpressionParser.infix(1, "*", "/") { _, _, name, left, right ->
+        BinaryOperation(name, left, right) },
+    ExpressionParser.infix(2, "+", "-") { _, _, name, left, right ->
+        BinaryOperation(name, left, right) },
+) { tokenizer, context -> parseFactor(tokenizer, context) }
 
 /**
- * symbols contanins constants (mapped to an int) and variables (mapped to null)
+ * "symbols" contanins constants (mapped to an int) and variables (mapped to null)
  */
 class ParsingContext(
     parentContext: ParsingContext?,
@@ -172,26 +171,24 @@ class ParsingContext(
     procedureNames: Set<String>
 ) {
     val symbols: Map<String, Int?> = if (parentContext == null) symbols
-        else parentContext.symbols.toMutableMap().apply { putAll( symbols) }.toMap()
+    else parentContext.symbols.toMutableMap().apply { putAll( symbols) }.toMap()
     val procedureNames: Set<String> = if (parentContext == null) procedureNames
-        else parentContext.procedureNames.toMutableSet().apply { addAll (procedureNames)}
+    else parentContext.procedureNames.toMutableSet().apply { addAll (procedureNames)}
 }
 
-val expressionParser = ExpressionParser<Pl0Tokenizer, ParsingContext, Expression>(
-    ExpressionParser.prefix(0, "+") { _, _, _, operand -> operand },
-    ExpressionParser.prefix(0, "-") { _, _, _, operand ->
-        UnaryExpression("-", operand) { -it }
-    },
-    ExpressionParser.infix(1, "*") { _, _, _, left, right ->
-        BinaryExpression("*", left, right) {l, r -> l * r}
-    },
-    ExpressionParser.infix(1, "/") { _, _, _, left, right ->
-        BinaryExpression("/", left, right) {l, r -> l / r}
-    },
-    ExpressionParser.infix(2, "+") { _, _, _, left, right ->
-        BinaryExpression("+", left, right) {l, r -> l + r}
-    },
-    ExpressionParser.infix(2, "-") { _, _, _, left, right ->
-        BinaryExpression("-", left, right) {l, r -> l - r}
-    },
-) { tokenizer, context -> parseFactor(tokenizer, context) }
+enum class TokenType {
+    BOF, IDENT, NUMBER, COMPARISON, SYMBOL, EOF
+}
+
+class Pl0Tokenizer(input: String) : Tokenizer<TokenType>(
+    TokenType.BOF,
+    listOf(
+        RegularExpressions.WHITESPACE to null,
+        Regex("[0-9]+") to TokenType.NUMBER,
+        Regex("[a-zA-Z]+") to TokenType.IDENT,
+        Regex("<=|>=|=|<|>|#") to TokenType.COMPARISON,
+        Regex("\\(|\\)|:=|;|\\.|!|\\?|\\+|-|\\*|/") to TokenType.SYMBOL
+    ),
+    TokenType.EOF,
+    input
+)

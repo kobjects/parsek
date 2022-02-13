@@ -31,17 +31,24 @@ class Pl0Test {
 
     @Test
     fun testFizzBuzz() {
-        val program = parseProgram(Pl0Tokenizer(fizzBuzz)
-        )
-
+        val program = parseProgram(fizzBuzz)
         val result = mutableListOf<Int>()
-
-        println(program)
 
         program.eval(
             { result.add(it) },
             { throw UnsupportedOperationException() })
 
         assertEquals(listOf(1, 2, -3, 4, -5, -3, 7, 8, -3, -5, 11, -3, 13, 14, -15, 16, 17, -3, 19, -5), result)
+    }
+
+    @Test
+    fun testStringification() {
+        val program = parseProgram(fizzBuzz)
+        val reparsed1 = parseProgram(program.toString())
+        assertEquals(program, reparsed1)
+
+        // We may insert extra parens in expressions
+        val reparsed2 = parseProgram(reparsed1.toString())
+        assertEquals(reparsed1.toString(), reparsed2.toString())
     }
 }

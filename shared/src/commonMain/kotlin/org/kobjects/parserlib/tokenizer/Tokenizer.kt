@@ -4,6 +4,9 @@ package org.kobjects.parserlib.tokenizer
  * Tokenizer. Typically parameterized with an enum type denoting the type of token.
  * Regular expressions paired with a null token are not reported. This is useful for
  * skipping insignificant whitespace or comments.
+ *
+ * If used in conjunction with the expression parser, it probably makes sense to
+ * create a subclass to get an unparameterized type.
  */
 open class Tokenizer<T>(
     val bofType: T,
@@ -66,7 +69,6 @@ open class Tokenizer<T>(
         return current
     }
 
-
     fun consume(type: T, errorMessage: String = "Token type $type expected."): String {
         if (current.type != type) {
             throw error(errorMessage)
@@ -98,7 +100,7 @@ open class Tokenizer<T>(
         return false
     }
 
-
+    /** Creates an illegal state exception with position context information. */
     fun error(message: String): IllegalStateException {
         return IllegalStateException("$message\nCurrent token: $current\nInput: '$input'\nPosition: $pos")
     }
