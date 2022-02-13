@@ -4,8 +4,6 @@ import org.kobjects.parserlib.expressionparser.ExpressionParser
 import org.kobjects.parserlib.tokenizer.RegularExpressions
 import org.kobjects.parserlib.tokenizer.Tokenizer
 
-fun parseProgram(text: String): Program = parseProgram(Pl0Tokenizer(text))
-
 // program = block "." .
 fun parseProgram(tokenizer: Pl0Tokenizer): Program {
     tokenizer.consume(TokenType.BOF)

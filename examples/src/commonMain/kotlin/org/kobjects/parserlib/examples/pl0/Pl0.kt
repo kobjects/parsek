@@ -1,5 +1,7 @@
 package org.kobjects.parserlib.examples.pl0
 
+fun parseProgram(text: String): Program = parseProgram(Pl0Tokenizer(text))
+
 /**
  * For information about pl/0, please refer to https://en.wikipedia.org/wiki/PL/0
  */
