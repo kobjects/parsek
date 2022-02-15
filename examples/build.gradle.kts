@@ -65,7 +65,7 @@ android {
         targetSdk = 32
     }
 }
-
 dependencies {
-    implementation(project(":shared"))
+    implementation(project(":core"))
 }
+

@@ -1,7 +1,6 @@
 package org.kobjects.parserlib.expressionparser
 
 import org.kobjects.parserlib.tokenizer.Tokenizer
-import java.lang.IllegalStateException
 
 
 /**

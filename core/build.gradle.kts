@@ -2,27 +2,31 @@ plugins {
     kotlin("multiplatform")
     kotlin("native.cocoapods")
     id("com.android.library")
+    id("maven-publish")
 }
 
 // CocoaPods requires the podspec to have a version.
-version = "1.0"
+group = "org.kobjects.parserlib"
+version = "0.1.1"
 
 kotlin {
-    android()
+    android {
+        publishLibraryVariants("release", "debug")
+    }
     iosX64()
     iosArm64()
     //iosSimulatorArm64() sure all ios dependencies support this target
 
     cocoapods {
-        summary = "Some description for the Shared Module"
-        homepage = "Link to the Shared Module homepage"
+        summary = "Kotlin Parser Library"
+        homepage = "https://github.com/kobjects/parserlib"
         ios.deploymentTarget = "14.1"
         podfile = project.file("../iosApp/Podfile")
         framework {
-            baseName = "shared"
+            baseName = "core"
         }
     }
-    
+
     sourceSets {
         val commonMain by getting
         val commonTest by getting {

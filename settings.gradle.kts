@@ -8,5 +8,5 @@ pluginManagement {
 
 rootProject.name = "parserlib"
 include(":androidApp")
-include(":shared")
+include(":core")
 include(":examples")
