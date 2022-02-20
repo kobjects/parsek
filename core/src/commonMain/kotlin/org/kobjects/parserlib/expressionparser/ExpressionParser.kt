@@ -33,7 +33,7 @@ open class ExpressionParser<T : Tokenizer<*>, C, R> (
     }
 
     private fun parsePrefix(tokenizer: T, context: C): R {
-        val token: String = tokenizer.current.value
+        val token: String = tokenizer.current.text
         val prefixSymbol = prefix[token] ?: return parsePrimary(tokenizer, context)
         tokenizer.next()
         val operand = parse(tokenizer, context, prefixSymbol.precedence)
@@ -47,7 +47,7 @@ open class ExpressionParser<T : Tokenizer<*>, C, R> (
     fun parse(tokenizer: T, context: C, precedence: Int = -1): R {
         var left = parsePrefix(tokenizer, context)
         while (true) {
-            val token: String = tokenizer.current.value
+            val token: String = tokenizer.current.text
             val symbol = infixOrSuffix[token] ?: break
             if (symbol.precedence <= precedence) {
                 break

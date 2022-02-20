@@ -20,12 +20,12 @@ class ParserTest {
     fun parsePrimary(tokenizer: Tokenizer<TokenType>): Double =
         when (tokenizer.current.type) {
             TokenType.NUMBER -> {
-                val result = tokenizer.current.value.toDouble()
+                val result = tokenizer.current.text.toDouble()
                 tokenizer.next()
                 result
             }
             TokenType.SYMBOL ->
-                if (tokenizer.current.value == "(") {
+                if (tokenizer.current.text == "(") {
                     val result = parser.parse(tokenizer, Unit)
                     tokenizer.consume(")")
                     result
@@ -61,7 +61,7 @@ class ParserTest {
         )
 
         fun createTokenizer(input: String): Tokenizer<TokenType> =
-            Tokenizer(TokenType.BOF, TOKEN_LIST, TokenType.EOF, input)
+            Tokenizer(input, TokenType.BOF, TokenType.EOF, *TOKEN_LIST.toTypedArray())
     }
 
 

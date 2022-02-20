@@ -6,24 +6,32 @@ package org.kobjects.parserlib.tokenizer
  * skipping insignificant whitespace or comments.
  *
  * If used in conjunction with the expression parser, it probably makes sense to
- * create a subclass to get an unparameterized type.
+ * create a subclass to create an unparameterized type.
  */
 open class Tokenizer<T>(
-    val bofType: T,
-    val types: List<Pair<Regex, T?>>,
+    val input: String,
+    bofType: T,
     val eofType: T,
-    val input: String
-) {
-    var pos = 0
-    var col = 0
-    var line = 0
-    var current: Token<T> = Token(0, 0, 0, bofType, "<BOF>")
-    var skipped = false
+    vararg val types: Pair<Regex, T?>,
+    prepend: List<Token<T>> = listOf(),
+) : Iterator<Token<T>> {
+    val current: Token<T>
+        get() = lookAhead(0)
+
+    var bof = true
     var eof = false
 
+    private var pos = 0
+    private var col = 0
+    private var line = 0
+    // var skipped = false
+    private var lookAhead = MutableList(prepend.size + 1) {
+        if (it == 0) Token(0, 0, 0, bofType, "<BOF>") else prepend[it - 1]
+    }
+    private val disabledTypes = mutableMapOf<T, Int>()
+
     @OptIn(ExperimentalStdlibApi::class)
-    fun next(): Token<T> {
-        skipped = false
+    private fun readToken(): Token<T> {
         while (pos < input.length) {
             val startPos = pos
             val startCol = col
@@ -53,37 +61,70 @@ open class Tokenizer<T>(
                     // potentially comments.
                     val type = candidate.second
                     if (type == null) {
-                        skipped = true
+                     //   skipped = true
                         break
                     }
-                    current = Token<T>(startPos, startLine, startCol, type, match.value)
-                    return current
+                    return Token(startPos, startLine, startCol, type, match.value)
                 }
             }
             if (startPos == pos) {
                 throw error("No token matched '${input.substring(pos, pos + 10)}...'}");
             }
         }
-        current = Token(pos, 0, 0, eofType, "<EOF>")
-        eof = true
-        return current
+        return Token(pos, line, col, eofType, "<EOF>")
+    }
+
+    /** Consumes the current token: returns the current token and advances to the next token. */
+    override fun next(): Token<T> {
+        val result = lookAhead(0)
+        while (disabledTypes.containsKey(lookAheadUnfiltered(0).type)) {
+            lookAhead.removeAt(0)
+        }
+        lookAhead.removeAt(0)
+        if (bof) {
+            bof = false
+        } else {
+            eof = result.type == eofType
+        }
+        return result
+    }
+
+    /**
+     * Disable the given token type. Might be used to filter out line breaks inside parens.
+     * Multiple calls are cumulative and a corresponding number of calls to enableToken are
+     * needed to re-enable the token.
+     */
+    fun disable(type: T) {
+        if (type == eofType)  {
+            throw IllegalArgumentException("Can't filter out EOF.")
+        }
+        val depth = disabledTypes[type] ?: 0
+        disabledTypes[type] = depth + 1
+    }
+
+    /** Re-enables a disabled token type. */
+    fun enable(type: T) {
+        val depth = disabledTypes[type] ?: return
+        if (depth - 1 <= 0) {
+            disabledTypes.remove(type)
+        } else {
+            disabledTypes[type] = depth - 1
+        }
     }
 
     fun consume(type: T, errorMessage: String = "Token type $type expected."): String {
         if (current.type != type) {
             throw error(errorMessage)
         }
-        val result = current.value;
-        next()
-        return result
+        return next().text
     }
 
     /**
      * Consume and return a token with the given text value. If the current token type does not
      * match, an exception is thrown.
      */
-    fun consume(value: String, errorMessage: String = "Token value '$value' expected.") {
-        if (!tryConsume(value)) {
+    fun consume(text: String, errorMessage: String = "Token text '$text' expected.") {
+        if (!tryConsume(text)) {
             throw error(errorMessage)
         }
     }
@@ -93,7 +134,7 @@ open class Tokenizer<T>(
      * is returned. Otherwise, false is returned.
      */
     fun tryConsume(value: String): Boolean {
-        if (current.value == value) {
+        if (current.text == value) {
             next()
             return true
         }
@@ -102,7 +143,34 @@ open class Tokenizer<T>(
 
     /** Creates an illegal state exception with position context information. */
     fun error(message: String): IllegalStateException {
-        return IllegalStateException("$message\nCurrent token: $current\nInput: '$input'\nPosition: $pos")
+        return IllegalStateException("$message\nCurrent token: $current\n")
     }
 
+    override fun hasNext(): Boolean {
+        return !eof
+    }
+
+    fun lookAhead(index: Int): Token<T> {
+        if (disabledTypes.size == 0) {
+            return lookAheadUnfiltered(index)
+        }
+        var count = 0
+        var pos = 0
+        while(true) {
+            val candidate = lookAheadUnfiltered(pos++)
+            if (disabledTypes.containsKey(candidate.type)) {
+                continue
+            }
+            if (count++ == index) {
+                return candidate
+            }
+        }
+    }
+
+    fun lookAheadUnfiltered(index: Int): Token<T> {
+        while (lookAhead.size <= index) {
+            lookAhead.add(readToken())
+        }
+        return lookAhead[index]
+    }
 }

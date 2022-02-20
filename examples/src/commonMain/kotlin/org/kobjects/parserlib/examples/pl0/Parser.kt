@@ -171,15 +171,13 @@ enum class TokenType {
 }
 
 class Pl0Tokenizer(input: String) : Tokenizer<TokenType>(
+    input,
     TokenType.BOF,
-    listOf(
-        RegularExpressions.WHITESPACE to null,
-        Regex("BEGIN|CALL|CONST|DO|END|IF|ODD|PROCEDURE|THEN|VAR|WHILE") to TokenType.KEYWORD,
-        Regex("[0-9]+") to TokenType.NUMBER,
-        Regex("[a-zA-Z]+") to TokenType.IDENT,
-        Regex("<=|>=|=|<|>|#") to TokenType.COMPARISON,
-        Regex("\\(|\\)|:=|;|\\.|!|\\?|\\+|-|\\*|/") to TokenType.SYMBOL
-    ),
     TokenType.EOF,
-    input
+    RegularExpressions.WHITESPACE to null,
+    Regex("BEGIN|CALL|CONST|DO|END|IF|ODD|PROCEDURE|THEN|VAR|WHILE") to TokenType.KEYWORD,
+    Regex("[0-9]+") to TokenType.NUMBER,
+    Regex("[a-zA-Z]+") to TokenType.IDENT,
+    Regex("<=|>=|=|<|>|#") to TokenType.COMPARISON,
+    Regex("\\(|\\)|:=|;|\\.|!|\\?|\\+|-|\\*|/") to TokenType.SYMBOL,
 )

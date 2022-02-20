@@ -11,6 +11,7 @@ object RegularExpressions {
     val IDENTIFIER = Regex("[\\p{Alpha}_$][\\p{Alpha}_$\\d]*")
 
     val NUMBER = Regex("(\\d+(\\.\\d*)?|\\.\\d+)([eE][+-]?\\d+)?")
-    val STRING = Regex("(\"([^\"\\\\]*(\\\\.[^\"\\\\]*)*)\"|'([^'\\\\]*(\\\\.[^'\\\\]*)*)')")
+    val DOUBLE_QUOTED_STRING = Regex("\"([^\"\\\\]*(\\\\.[^\"\\\\]*)*)\"")
+    val SINGLE_QUOTED_STRING = Regex("'([^'\\\\]*(\\\\.[^'\\\\]*)*)'")
     val SYMBOL = Regex("\\+|-|\\*|%|<=|>=|==|=|<|>|\\^|!")
 }
