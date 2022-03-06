@@ -143,7 +143,8 @@ open class Tokenizer<T>(
 
     /** Creates an illegal state exception with position context information. */
     fun error(message: String): IllegalStateException {
-        return IllegalStateException("$message\nCurrent token: $current\n")
+        return if (lookAhead.isEmpty()) IllegalStateException(message)
+            else IllegalStateException("$message\nCurrent token: $current\n")
     }
 
     override fun hasNext(): Boolean {

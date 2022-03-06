@@ -7,7 +7,7 @@ plugins {
 
 // CocoaPods requires the podspec to have a version.
 group = "org.kobjects.parserlib"
-version = "0.2.0"
+version = "0.2.2"
 
 kotlin {
     android {
@@ -16,6 +16,7 @@ kotlin {
     iosX64()
     iosArm64()
     //iosSimulatorArm64() sure all ios dependencies support this target
+    jvm("desktop")
 
     cocoapods {
         summary = "Kotlin Parser Library"
@@ -60,6 +61,10 @@ kotlin {
             iosArm64Test.dependsOn(this)
             //iosSimulatorArm64Test.dependsOn(this)
         }
+
+
+        val desktopMain by getting
+        val desktopTest by getting
     }
 }
 
