@@ -18,6 +18,7 @@ open class Tokenizer<T>(
     val current: Token<T>
         get() = lookAhead(0)
 
+
     var bof = true
     var eof = false
 
@@ -28,6 +29,7 @@ open class Tokenizer<T>(
     private var lookAhead = MutableList(prepend.size + 1) {
         if (it == 0) Token(0, 0, 0, bofType, "<BOF>") else prepend[it - 1]
     }
+    private var last = lookAhead[0]  // for error messages
     private val disabledTypes = mutableMapOf<T, Int>()
 
     @OptIn(ExperimentalStdlibApi::class)
@@ -76,7 +78,7 @@ open class Tokenizer<T>(
 
     /** Consumes the current token: returns the current token and advances to the next token. */
     override fun next(): Token<T> {
-        val result = lookAhead(0)
+        last = lookAhead(0)
         while (disabledTypes.containsKey(lookAheadUnfiltered(0).type)) {
             lookAhead.removeAt(0)
         }
@@ -84,9 +86,9 @@ open class Tokenizer<T>(
         if (bof) {
             bof = false
         } else {
-            eof = result.type == eofType
+            eof = last.type == eofType
         }
-        return result
+        return last
     }
 
     /**
@@ -143,8 +145,7 @@ open class Tokenizer<T>(
 
     /** Creates an illegal state exception with position context information. */
     fun error(message: String): IllegalStateException {
-        return if (lookAhead.isEmpty()) IllegalStateException(message)
-            else IllegalStateException("$message\nCurrent token: $current\n")
+        return IllegalStateException("$message\nCurrent token: $last\n")
     }
 
     override fun hasNext(): Boolean {
