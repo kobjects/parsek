@@ -30,9 +30,9 @@ class ParserTest {
                     tokenizer.consume(")")
                     result
                 } else {
-                    throw tokenizer.error("Number or group expected.")
+                    throw tokenizer.exception("Number or group expected.")
                 }
-            else -> throw tokenizer.error("Number or group expected.")
+            else -> throw tokenizer.exception("Number or group expected.")
         }
 
     fun evaluate(expr: String): Double {

@@ -70,7 +70,7 @@ open class Tokenizer<T>(
                 }
             }
             if (startPos == pos) {
-                throw error("No token matched '${input.substring(pos, pos + 10)}...'}");
+                throw exception("No token matched '${input.substring(pos, pos + 10)}...'}");
             }
         }
         return Token(pos, line, col, eofType, "<EOF>")
@@ -116,7 +116,7 @@ open class Tokenizer<T>(
 
     fun consume(type: T, errorMessage: String = "Token type $type expected."): String {
         if (current.type != type) {
-            throw error(errorMessage)
+            throw exception(errorMessage)
         }
         return next().text
     }
@@ -127,7 +127,7 @@ open class Tokenizer<T>(
      */
     fun consume(text: String, errorMessage: String = "Token text '$text' expected.") {
         if (!tryConsume(text)) {
-            throw error(errorMessage)
+            throw exception(errorMessage)
         }
     }
 
@@ -144,7 +144,7 @@ open class Tokenizer<T>(
     }
 
     /** Creates an illegal state exception with position context information. */
-    fun error(message: String) = ParsingException(last, "$message\nCurrent token: $last\n")
+    fun exception(message: String) = ParsingException(last, "$message\nCurrent token: $last\n")
 
     override fun hasNext(): Boolean {
         return !eof
