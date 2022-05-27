@@ -144,9 +144,7 @@ open class Tokenizer<T>(
     }
 
     /** Creates an illegal state exception with position context information. */
-    fun error(message: String): IllegalStateException {
-        return IllegalStateException("$message\nCurrent token: $last\n")
-    }
+    fun error(message: String) = ParsingException(last, "$message\nCurrent token: $last\n")
 
     override fun hasNext(): Boolean {
         return !eof
