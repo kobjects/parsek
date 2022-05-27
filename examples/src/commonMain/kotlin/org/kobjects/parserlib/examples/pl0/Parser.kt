@@ -26,7 +26,7 @@ fun parseBlock(tokenizer: Pl0Tokenizer, parentContext: ParsingContext?): Block {
             tokenizer.consume("=")
             val value = tokenizer.consume(TokenType.NUMBER).toInt()
             if (symbols.containsKey(name)) {
-                throw tokenizer.error("Constant $name already defined.")
+                throw tokenizer.exception("Constant $name already defined.")
             }
             symbols[name] = value
         } while (tokenizer.tryConsume(","))
@@ -36,7 +36,7 @@ fun parseBlock(tokenizer: Pl0Tokenizer, parentContext: ParsingContext?): Block {
         do {
             val name = tokenizer.consume(TokenType.IDENT)
             if (symbols.containsKey(name)) {
-                throw tokenizer.error("Duplicate symbol $name")
+                throw tokenizer.exception("Duplicate symbol $name")
             }
             symbols[name] = null
         } while (tokenizer.tryConsume(","))
@@ -48,7 +48,7 @@ fun parseBlock(tokenizer: Pl0Tokenizer, parentContext: ParsingContext?): Block {
         val name = tokenizer.consume(TokenType.IDENT)
         tokenizer.consume(";")
         if (procedureNames.contains(name)) {
-            tokenizer.error("Duplicate procedure name $name")
+            tokenizer.exception("Duplicate procedure name $name")
         }
         procedureNames.add(name)  // Permit recursion
         val block = parseBlock(tokenizer, ParsingContext(parentContext, symbols, procedureNames))
@@ -77,16 +77,16 @@ fun parseStatement(tokenizer: Pl0Tokenizer, context: ParsingContext): Statement 
     } else if (tokenizer.tryConsume("CALL")) {
         val name = tokenizer.consume(TokenType.IDENT)
         if (!context.procedureNames.contains(name)) {
-            throw tokenizer.error("Undefined procedure $name")
+            throw tokenizer.exception("Undefined procedure $name")
         }
         Call(name)
     } else if (tokenizer.tryConsume("?")) {
         val variable = tokenizer.consume(TokenType.IDENT)
         if (!context.symbols.containsKey(variable)) {
-            throw tokenizer.error("Undefined variable $variable")
+            throw tokenizer.exception("Undefined variable $variable")
         }
         if (context.symbols[variable] != null) {
-            throw tokenizer.error("Can't read constant $variable")
+            throw tokenizer.exception("Can't read constant $variable")
         }
         Read(variable)
     } else if (tokenizer.tryConsume("!")) {
