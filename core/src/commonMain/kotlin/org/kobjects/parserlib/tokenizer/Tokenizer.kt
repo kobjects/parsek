@@ -102,6 +102,9 @@ open class Tokenizer<T>(
         }
         val depth = disabledTypes[type] ?: 0
         disabledTypes[type] = depth + 1
+        if (current.type == type) {
+            next()
+        }
     }
 
     /** Re-enables a disabled token type. */
