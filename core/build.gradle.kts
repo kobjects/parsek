@@ -22,7 +22,7 @@ kotlin {
         summary = "Kotlin Parser Library"
         homepage = "https://github.com/kobjects/parserlib"
         ios.deploymentTarget = "14.1"
-        podfile = project.file("../iosApp/Podfile")
+        //podfile = project.file("../iosApp/Podfile")
         framework {
             baseName = "core"
         }
