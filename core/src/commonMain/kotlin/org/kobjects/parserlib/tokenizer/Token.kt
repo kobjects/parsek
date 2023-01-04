@@ -5,6 +5,7 @@ data class Token<T>(
     val line: Int,
     val col: Int,
     val type: T,
-    val text: String) {
+    val text: String,
+) {
     override fun toString() = "$type @ $pos ($line:$col) '$text'"
 }

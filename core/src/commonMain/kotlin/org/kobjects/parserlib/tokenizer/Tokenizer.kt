@@ -14,7 +14,11 @@ open class Tokenizer<T>(
     val eofType: T,
     vararg val types: Pair<Regex, T?>,
     prepend: List<Token<T>> = listOf(),
+    val normalization: (T, String) -> String = { _, s -> s},
 ) : Iterator<Token<T>> {
+    // A copy of the current token for error reporting (avoiding potential stack overflow when
+    // lookahead(0) fails.
+
     val current: Token<T>
         get() = lookAhead(0)
 
@@ -30,6 +34,7 @@ open class Tokenizer<T>(
     private var buffer = MutableList(prepend.size + 1) {
         if (it == 0) Token(0, 0, 0, bofType, "<BOF>") else prepend[it - 1]
     }
+    private var currentMaterialized: Token<T> = buffer[0]
     private val disabledTypes = mutableMapOf<T, Int>()
 
     @OptIn(ExperimentalStdlibApi::class)
@@ -62,7 +67,7 @@ open class Tokenizer<T>(
                     // Matches without type are not reported. Useful for whitespace and
                     // potentially comments.
                     val type = candidate.second ?: break
-                    return Token(startPos, startLine, startCol, type, match.value)
+                    return Token(startPos, startLine, startCol, type, normalization(type, match.value))
                 }
             }
             if (startPos == pos) {
@@ -134,7 +139,7 @@ open class Tokenizer<T>(
     }
 
     /** Creates an illegal state exception with position context information. */
-    fun exception(message: String) = ParsingException(current, "$message\nToken: $current")
+    fun exception(message: String) = ParsingException(currentMaterialized, "$message\nToken: $currentMaterialized")
 
     override fun hasNext(): Boolean {
         return !eof
@@ -149,6 +154,9 @@ open class Tokenizer<T>(
         while(true) {
             val candidate = lookAheadUnfiltered(pos++)
             if (!disabledTypes.containsKey(candidate.type)) {
+                if (count == 0) {
+                    currentMaterialized = candidate
+                }
                 if (count++ == index) {
                     return candidate
                 }
