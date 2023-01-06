@@ -79,12 +79,12 @@ open class Tokenizer<T>(
 
     /** Consumes the current token: returns the current token and advances to the next token. */
     override fun next(): Token<T> {
-        val result = current
-        while (buffer[0] !== result) {
+        currentMaterialized = current
+        while (buffer[0] !== currentMaterialized) {
             buffer.removeAt(0)
         }
         buffer.removeAt(0)
-        return result
+        return currentMaterialized
     }
 
     /**
@@ -139,7 +139,14 @@ open class Tokenizer<T>(
     }
 
     /** Creates an illegal state exception with position context information. */
-    fun exception(message: String) = ParsingException(currentMaterialized, "$message\nToken: $currentMaterialized")
+    fun exception(message: String) = ParsingException(currentMaterialized, message)
+
+    fun ensureParsingException(e: Exception): ParsingException {
+        if (e is ParsingException) {
+            return e
+        }
+        return ParsingException(currentMaterialized, null, e)
+    }
 
     override fun hasNext(): Boolean {
         return !eof
@@ -154,9 +161,6 @@ open class Tokenizer<T>(
         while(true) {
             val candidate = lookAheadUnfiltered(pos++)
             if (!disabledTypes.containsKey(candidate.type)) {
-                if (count == 0) {
-                    currentMaterialized = candidate
-                }
                 if (count++ == index) {
                     return candidate
                 }

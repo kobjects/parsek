@@ -2,6 +2,11 @@ package org.kobjects.parserlib.tokenizer
 
 class ParsingException(
     val token: Token<*>,
-    msg: String,
-    chained: Exception? = null) : Exception(msg, chained) {
+    message: String?,
+    cause: Throwable? = null) : Exception(message, cause) {
+
+    override fun toString(): String {
+        return message ?: cause?.toString() ?: "Parsing Error"
+    }
+
 }
