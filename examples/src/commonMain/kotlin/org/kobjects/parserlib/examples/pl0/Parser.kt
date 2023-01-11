@@ -6,7 +6,6 @@ import org.kobjects.parserlib.tokenizer.Tokenizer
 
 // program = block "." .
 fun parseProgram(tokenizer: Pl0Tokenizer): Program {
-    tokenizer.consume(TokenType.BOF)
     val result = Program(parseBlock(tokenizer, null))
     tokenizer.consume(".")
     tokenizer.consume(TokenType.EOF)
@@ -172,7 +171,6 @@ enum class TokenType {
 
 class Pl0Tokenizer(input: String) : Tokenizer<TokenType>(
     input,
-    TokenType.BOF,
     TokenType.EOF,
     RegularExpressions.WHITESPACE to null,
     Regex("BEGIN|CALL|CONST|DO|END|IF|ODD|PROCEDURE|THEN|VAR|WHILE") to TokenType.KEYWORD,

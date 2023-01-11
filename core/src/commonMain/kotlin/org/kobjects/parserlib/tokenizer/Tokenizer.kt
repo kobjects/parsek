@@ -10,20 +10,16 @@ package org.kobjects.parserlib.tokenizer
  */
 open class Tokenizer<T>(
     val input: String,
-    val bofType: T,
     val eofType: T,
     vararg val types: Pair<Regex, T?>,
     prepend: List<Token<T>> = listOf(),
     val normalization: (T, String) -> String = { _, s -> s},
-) : Iterator<Token<T>> {
+)  {
     // A copy of the current token for error reporting (avoiding potential stack overflow when
     // lookahead(0) fails.
-
     val current: Token<T>
         get() = lookAhead(0)
 
-    val bof: Boolean
-        get() = buffer[0].type == bofType
     val eof: Boolean
         get() = current.type == eofType
 
@@ -31,11 +27,10 @@ open class Tokenizer<T>(
     private var col = 0
     private var line = 0
     // var skipped = false
-    private var buffer = MutableList(prepend.size + 1) {
-        if (it == 0) Token(0, 0, 0, bofType, "<BOF>") else prepend[it - 1]
-    }
-    private var currentMaterialized: Token<T> = buffer[0]
+    private var buffer = prepend.toMutableList()
+
     private val disabledTypes = mutableMapOf<T, Int>()
+    private var currentMaterialized: Token<T> = current
 
     @OptIn(ExperimentalStdlibApi::class)
     private fun readToken(): Token<T> {
@@ -78,13 +73,12 @@ open class Tokenizer<T>(
     }
 
     /** Consumes the current token: returns the current token and advances to the next token. */
-    override fun next(): Token<T> {
+    fun next() {
         currentMaterialized = current
         while (buffer[0] !== currentMaterialized) {
             buffer.removeAt(0)
         }
         buffer.removeAt(0)
-        return currentMaterialized
     }
 
     /**
@@ -113,7 +107,7 @@ open class Tokenizer<T>(
         if (current.type != type) {
             throw exception(errorMessage)
         }
-        return next().text
+        return current.text.apply { next() }
     }
 
     /**
@@ -148,7 +142,7 @@ open class Tokenizer<T>(
         return ParsingException(currentMaterialized, null, e)
     }
 
-    override fun hasNext(): Boolean {
+    fun hasNext(): Boolean {
         return !eof
     }
 

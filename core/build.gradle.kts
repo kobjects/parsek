@@ -7,7 +7,7 @@ plugins {
 
 // CocoaPods requires the podspec to have a version.
 group = "org.kobjects.parserlib"
-version = "0.4.2"
+version = "0.4.3"
 
 kotlin {
     android {
