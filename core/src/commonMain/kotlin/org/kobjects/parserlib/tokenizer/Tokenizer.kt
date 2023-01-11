@@ -14,7 +14,7 @@ open class Tokenizer<T>(
     vararg val types: Pair<Regex, T?>,
     prepend: List<Token<T>> = listOf(),
     val normalization: (T, String) -> String = { _, s -> s},
-)  {
+) : Iterator<Token<T>> {
     // A copy of the current token for error reporting (avoiding potential stack overflow when
     // lookahead(0) fails.
     val current: Token<T>
@@ -73,12 +73,13 @@ open class Tokenizer<T>(
     }
 
     /** Consumes the current token: returns the current token and advances to the next token. */
-    fun next() {
+    override fun next(): Token<T> {
         currentMaterialized = current
         while (buffer[0] !== currentMaterialized) {
             buffer.removeAt(0)
         }
         buffer.removeAt(0)
+        return currentMaterialized
     }
 
     /**
@@ -107,7 +108,7 @@ open class Tokenizer<T>(
         if (current.type != type) {
             throw exception(errorMessage)
         }
-        return current.text.apply { next() }
+        return next().text
     }
 
     /**
@@ -142,7 +143,7 @@ open class Tokenizer<T>(
         return ParsingException(currentMaterialized, null, e)
     }
 
-    fun hasNext(): Boolean {
+    override fun hasNext(): Boolean {
         return !eof
     }
 
