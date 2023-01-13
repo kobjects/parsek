@@ -1,12 +1,12 @@
 package org.kobjects.parserlib.tokenizer
 
 /**
- * Tokenizer. Typically parameterized with an enum type denoting the type of token.
+ * A Tokenizer. Typically parameterized with an enum type denoting the type of token.
  * Regular expressions paired with a null token are not reported. This is useful for
  * skipping insignificant whitespace or comments.
  *
  * If used in conjunction with the expression parser, it probably makes sense to
- * create a subclass to create an unparameterized type.
+ * create a subclass to get an unparameterized type.
  */
 open class Tokenizer<T>(
     val input: String,
@@ -14,7 +14,7 @@ open class Tokenizer<T>(
     vararg val types: Pair<Regex, T?>,
     prepend: List<Token<T>> = listOf(),
     val normalization: (T, String) -> String = { _, s -> s},
-) : Iterator<Token<T>> {
+)  {
     // A copy of the current token for error reporting (avoiding potential stack overflow when
     // lookahead(0) fails.
     val current: Token<T>
@@ -72,14 +72,17 @@ open class Tokenizer<T>(
         return Token(pos, line, col, eofType, "<EOF>")
     }
 
-    /** Consumes the current token: returns the current token and advances to the next token. */
-    override fun next(): Token<T> {
+    /**
+     * Consumes the current token: returns the text of the current token and advances to the
+     * next token.
+     */
+    fun consume(): String {
         currentMaterialized = current
         while (buffer[0] !== currentMaterialized) {
             buffer.removeAt(0)
         }
         buffer.removeAt(0)
-        return currentMaterialized
+        return currentMaterialized.text
     }
 
     /**
@@ -108,7 +111,7 @@ open class Tokenizer<T>(
         if (current.type != type) {
             throw exception(errorMessage)
         }
-        return next().text
+        return consume()
     }
 
     /**
@@ -127,7 +130,7 @@ open class Tokenizer<T>(
      */
     fun tryConsume(value: String): Boolean {
         if (current.text == value) {
-            next()
+            consume()
             return true
         }
         return false
@@ -141,10 +144,6 @@ open class Tokenizer<T>(
             return e
         }
         return ParsingException(currentMaterialized, null, e)
-    }
-
-    override fun hasNext(): Boolean {
-        return !eof
     }
 
     fun lookAhead(index: Int): Token<T> {

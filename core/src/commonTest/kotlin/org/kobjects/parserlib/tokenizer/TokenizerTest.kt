@@ -12,19 +12,16 @@ class TokenizerTest {
     fun testSimple() {
         val tokenizer = createTokenizer("4 + x")
 
-        assertEquals(TokenType.BOF, tokenizer.current.type)
-        assertEquals(TokenType.BOF, tokenizer.next().type)
-
         assertFalse(tokenizer.eof)
         assertTypeAndValue(TokenType.NUMBER, "4", tokenizer.current)
-        assertTypeAndValue(TokenType.NUMBER, "4", tokenizer.next())
+        assertEquals("4", tokenizer.consume())
 
         assertTypeAndValue(TokenType.SYMBOL, "+", tokenizer.current)
-        assertTypeAndValue(TokenType.SYMBOL, "+", tokenizer.next())
+        assertEquals( "+", tokenizer.consume())
 
-        assertTypeAndValue(TokenType.IDENTIFIER, "x", tokenizer.next())
+        assertEquals( "x", tokenizer.consume())
 
-        assertEquals(TokenType.EOF, tokenizer.next().type)
+        assertEquals(TokenType.EOF, tokenizer.current.type)
         assertTrue(tokenizer.eof)
     }
 
@@ -34,7 +31,6 @@ class TokenizerTest {
         fun createTokenizer(input: String): Tokenizer<TokenType?> {
             return Tokenizer(
                 input,
-                TokenType.BOF,
                 TokenType.EOF,
                 RegularExpressions.WHITESPACE to null,  // Don't report
                 RegularExpressions.SYMBOL to TokenType.SYMBOL,

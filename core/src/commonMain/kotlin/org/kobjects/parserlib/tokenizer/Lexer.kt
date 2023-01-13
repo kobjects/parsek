@@ -2,9 +2,22 @@ package org.kobjects.parserlib.tokenizer
 
 import kotlin.math.min
 
+/**
+ * Splits the input string into tokens, exposed as token iterator. The type parameter indicates
+ * the token type; typically an enum consisting of values such as IDENTIFIER, NUMBER etc.
+ */
 class Lexer<T>(
+    /** The input. */
     private val input: String,
+    /**
+     * Pairs of regular expressions and the corresponding token types. Multiple regular
+     * expressions may map to the same token type. Regular expressions mapping to null will be
+     * consumed without creating a token. The matches will be tried in the given order.
+     */
     private vararg val types: Pair<Regex, T?>,
+    /**
+     * An optional normalization function for the token text.
+     */
     private val normalization: (T, String) -> String = { _, s -> s }
 ): Iterator<Token<T>> {
     private var pos = 0
@@ -62,6 +75,6 @@ class Lexer<T>(
         if (!hasNext()) {
             throw IllegalStateException("Trying to read beyond end of input.")
         }
-        return next!!
+        return next!!.apply { next = null }
     }
 }

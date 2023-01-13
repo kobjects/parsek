@@ -6,7 +6,7 @@ import org.kobjects.parserlib.tokenizer.Tokenizer
 /**
  * A simple configurable expression parser.
  *
- * T is the tokenenizer type
+ * T is the tokenizer type
  *
  * C is the parsing context, typically holding which variable definitions etc.
  *
@@ -35,7 +35,7 @@ open class ExpressionParser<T : Tokenizer<*>, C, R> (
     private fun parsePrefix(tokenizer: T, context: C): R {
         val token: String = tokenizer.current.text
         val prefixSymbol = prefix[token] ?: return parsePrimary(tokenizer, context)
-        tokenizer.next()
+        tokenizer.consume()
         val operand = parse(tokenizer, context, prefixSymbol.precedence)
         return prefixSymbol.build(tokenizer, context, token, operand)
     }
@@ -52,7 +52,7 @@ open class ExpressionParser<T : Tokenizer<*>, C, R> (
             if (symbol.precedence <= precedence) {
                 break
             }
-            tokenizer.next()
+            tokenizer.consume()
             left = if (symbol is Symbol.Unary<T, C, R>) {
                 symbol.build(tokenizer, context, token, left)
             } else if (symbol is Symbol.Binary<T, C, R>) {

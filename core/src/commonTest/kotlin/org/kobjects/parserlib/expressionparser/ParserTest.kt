@@ -19,11 +19,7 @@ class ParserTest {
 
     fun parsePrimary(tokenizer: Tokenizer<TokenType>): Double =
         when (tokenizer.current.type) {
-            TokenType.NUMBER -> {
-                val result = tokenizer.current.text.toDouble()
-                tokenizer.next()
-                result
-            }
+            TokenType.NUMBER -> tokenizer.consume().toDouble()
             TokenType.SYMBOL ->
                 if (tokenizer.current.text == "(") {
                     val result = parser.parse(tokenizer, Unit)
@@ -37,7 +33,6 @@ class ParserTest {
 
     fun evaluate(expr: String): Double {
         val tokenizer = createTokenizer(expr)
-        tokenizer.next()
         return parser.parse(tokenizer, Unit)
     }
 
@@ -50,7 +45,7 @@ class ParserTest {
 
     companion object {
         enum class TokenType {
-            BOF, NUMBER, IDENTIFIER, SYMBOL, EOF
+            NUMBER, IDENTIFIER, SYMBOL, EOF
         }
 
         private val TOKEN_LIST = listOf(
@@ -61,7 +56,7 @@ class ParserTest {
         )
 
         fun createTokenizer(input: String): Tokenizer<TokenType> =
-            Tokenizer(input, TokenType.BOF, TokenType.EOF, *TOKEN_LIST.toTypedArray())
+            Tokenizer(input, TokenType.EOF, *TOKEN_LIST.toTypedArray())
     }
 
 
