@@ -36,10 +36,10 @@ class ScannerTest {
             return Scanner(
                 Lexer(
                     input,
-                    RegularExpressions.WHITESPACE to null,  // Don't report
-                    RegularExpressions.SYMBOL to TokenType.SYMBOL,
-                    RegularExpressions.IDENTIFIER to TokenType.IDENTIFIER,
-                    RegularExpressions.NUMBER to TokenType.NUMBER
+                    RegularExpressions.WHITESPACE to { null },  // Don't report
+                    RegularExpressions.SYMBOL to { TokenType.SYMBOL },
+                    RegularExpressions.IDENTIFIER to { TokenType.IDENTIFIER },
+                    RegularExpressions.NUMBER to { TokenType.NUMBER }
                 ),
                 null)
         }
