@@ -21,7 +21,7 @@ The expression parser operates on a tokenizer, is stateless and should be shared
   an opening brace after the primary expression.
 - "Grouping" brackets should be implemented where primary expressions are processed, too. 
 
-Again, simple usage examples can be found in the [tests](shared/src/commonTest/kotlin/org/kobjects/parserlib/expressionparser/ParserTest.kt)
+Again, simple usage examples can be found in the [tests](https://github.com/kobjects/parserlib/blob/main/core/src/commonTest/kotlin/org/kobjects/parserlib/expressionparser/ParserTest.kt)
 
 ## Examples
 
