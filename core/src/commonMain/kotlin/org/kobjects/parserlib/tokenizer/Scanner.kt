@@ -20,14 +20,19 @@ class Scanner<T>(
     val eof: Boolean
         get() = current.type == eofType && current.text == eofText
 
+    /** Consumes the current token and returns its text content. */
     fun consume(): String {
         if (eof) {
             throw exception("Trying to read past EOF")
         }
-        lookAhead(0)
+        // Checking for eof ensures that there is at least one element in the buffer.
         return buffer.removeAt(0).text.apply { currentMaterialized = current }
     }
 
+    /**
+     * Consumes a token with the given type and returns its text contetn. If the current token
+     * has a different type, an exception is thrown.
+     */
     fun consume(type: T, errorMessage: String = "Token type $type expected."): String {
         if (current.type != type) {
             throw exception(errorMessage)
@@ -55,6 +60,18 @@ class Scanner<T>(
             return true
         }
         return false
+    }
+
+    /**
+     * Wraps the given exception in a parsing exception if it's not a parsing exception already.
+     * Parsing exceptions are returned unchanged. Useful to associate other exceptions encountered
+     * during parsing with a token (including the corresponding input position).
+     */
+    fun ensureParsingException(e: Exception): ParsingException {
+        if (e is ParsingException) {
+            return e
+        }
+        return ParsingException(currentMaterialized, null, e)
     }
 
     /** Creates an illegal state exception with position context information. */
