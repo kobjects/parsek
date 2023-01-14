@@ -3,13 +3,13 @@
 Small Kotlin library for building recursive descent parsers, consisting mainly of a tokenizer and expression parser.
 
 
-## Tokenizer
+## Tokenization
 
-Tokenizer instances are stateful and can't be reused.
+Lexer and Scanner instances are stateful and can't be reused.
 
 The RegularExpressions class contains a set of useful regular expressions for parsing "C-Style" code.
 
-Simple usage examples can be found in the [TokenizerTest](shared/src/commonTest/kotlin/org/kobjects/parserlib/tokenizer/TokenizerTest.kt)
+Simple usage examples can be found in the [ScannerTest](shared/src/commonTest/kotlin/org/kobjects/parserlib/tokenizer/ScannerTest.kt)
 
 
 ## Expression Parser
