@@ -1,6 +1,10 @@
 package org.kobjects.parserlib.tokenizer
 
-class Scanner<T>(
+/**
+ * Class that wraps a "plain" lexer (implemented as a token iterator) for more comfortable token
+ * analysis in a parser.
+ */
+open class Scanner<T>(
     val input: Iterator<Token<T>>,
     val eofType: T,
     val eofText: String = ""
@@ -62,6 +66,10 @@ class Scanner<T>(
         return false
     }
 
+    fun requireEof(message: () -> String = { "EOF expected." }) {
+        if (!eof) throw exception(message())
+    }
+
     /**
      * Wraps the given exception in a parsing exception if it's not a parsing exception already.
      * Parsing exceptions are returned unchanged. Useful to associate other exceptions encountered
@@ -88,5 +96,4 @@ class Scanner<T>(
         }
         return buffer[index]
     }
-
 }

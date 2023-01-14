@@ -2,22 +2,23 @@ package org.kobjects.parserlib.expressionparser
 
 
 import org.kobjects.parserlib.expressionparser.ExpressionParser.Companion.infix
+import org.kobjects.parserlib.tokenizer.Lexer
 import org.kobjects.parserlib.tokenizer.RegularExpressions
-import org.kobjects.parserlib.tokenizer.Tokenizer
+import org.kobjects.parserlib.tokenizer.Scanner
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class ParserTest {
 
     // A parser that evaluates the expression directly (opposed to building a tree).
-    private val parser = ExpressionParser<Tokenizer<TokenType>, Unit, Double>(
+    private val parser = ExpressionParser<Scanner<TokenType>, Unit, Double>(
         infix(2, "*") { _, _, _, left, right -> left * right },
         infix(2, "/") { _, _, _, left, right -> left / right },
         infix(1, "+") { _, _, _, left, right -> left + right },
         infix(1, "-") { _, _, _, left, right -> left - right }
     ) { tokenizer, _ -> parsePrimary(tokenizer) }
 
-    fun parsePrimary(tokenizer: Tokenizer<TokenType>): Double =
+    fun parsePrimary(tokenizer: Scanner<TokenType>): Double =
         when (tokenizer.current.type) {
             TokenType.NUMBER -> tokenizer.consume().toDouble()
             TokenType.SYMBOL ->
@@ -32,8 +33,8 @@ class ParserTest {
         }
 
     fun evaluate(expr: String): Double {
-        val tokenizer = createTokenizer(expr)
-        return parser.parse(tokenizer, Unit)
+        val scanner = createScanner(expr)
+        return parser.parse(scanner, Unit)
     }
 
     @Test
@@ -48,15 +49,16 @@ class ParserTest {
             NUMBER, IDENTIFIER, SYMBOL, EOF
         }
 
-        private val TOKEN_LIST = listOf(
-            RegularExpressions.WHITESPACE to null,
-            RegularExpressions.SYMBOL to TokenType.SYMBOL,
-            RegularExpressions.IDENTIFIER to TokenType.IDENTIFIER,
-            RegularExpressions.NUMBER to TokenType.NUMBER,
-        )
-
-        fun createTokenizer(input: String): Tokenizer<TokenType> =
-            Tokenizer(input, TokenType.EOF, *TOKEN_LIST.toTypedArray())
+        fun createScanner(input: String): Scanner<TokenType> =
+            Scanner(
+                Lexer(
+                    input,
+                    RegularExpressions.WHITESPACE to { null },
+                    RegularExpressions.SYMBOL to { TokenType.SYMBOL },
+                    RegularExpressions.IDENTIFIER to { TokenType.IDENTIFIER },
+                    RegularExpressions.NUMBER to { TokenType.NUMBER },
+                ),
+                TokenType.EOF)
     }
 
 

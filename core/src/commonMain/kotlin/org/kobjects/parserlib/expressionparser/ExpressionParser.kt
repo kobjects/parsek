@@ -1,27 +1,27 @@
 package org.kobjects.parserlib.expressionparser
 
-import org.kobjects.parserlib.tokenizer.Tokenizer
+import org.kobjects.parserlib.tokenizer.Scanner
 
 
 /**
  * A simple configurable expression parser.
  *
- * T is the tokenizer type
+ * S is the scanner type
  *
  * C is the parsing context, typically holding which variable definitions etc.
  *
  * R is the type of the parsed expression.
  */
-open class ExpressionParser<T : Tokenizer<*>, C, R> (
-    vararg configuration: Configuration<T, C, R>,
-    val parsePrimary: (T, C) -> R
+open class ExpressionParser<S : Scanner<*>, C, R> (
+    vararg configuration: Configuration<S, C, R>,
+    val parsePrimary: (S, C) -> R
 ) {
-    private val prefix: Map<String, Symbol.Unary<T, C, R>>
-    private val infixOrSuffix: Map<String, Symbol<T, C, R>>
+    private val prefix: Map<String, Symbol.Unary<S, C, R>>
+    private val infixOrSuffix: Map<String, Symbol<S, C, R>>
 
     init {
-        var prefixBuilder = mutableMapOf<String, Symbol.Unary<T, C, R>>()
-        var infixOrSuffixBuilder = mutableMapOf<String, Symbol<T, C, R>>()
+        var prefixBuilder = mutableMapOf<String, Symbol.Unary<S, C, R>>()
+        var infixOrSuffixBuilder = mutableMapOf<String, Symbol<S, C, R>>()
 
         for (config in configuration) {
             prefixBuilder.putAll(config.prefix)
@@ -32,36 +32,36 @@ open class ExpressionParser<T : Tokenizer<*>, C, R> (
         infixOrSuffix = infixOrSuffixBuilder.toMap()
     }
 
-    private fun parsePrefix(tokenizer: T, context: C): R {
-        val token: String = tokenizer.current.text
-        val prefixSymbol = prefix[token] ?: return parsePrimary(tokenizer, context)
-        tokenizer.consume()
-        val operand = parse(tokenizer, context, prefixSymbol.precedence)
-        return prefixSymbol.build(tokenizer, context, token, operand)
+    private fun parsePrefix(scanner: S, context: C): R {
+        val token: String = scanner.current.text
+        val prefixSymbol = prefix[token] ?: return parsePrimary(scanner, context)
+        scanner.consume()
+        val operand = parse(scanner, context, prefixSymbol.precedence)
+        return prefixSymbol.build(scanner, context, token, operand)
     }
 
     /**
      * Parser an expression from the given tokenizer. Leftover tokens will be ignored and
      * may be handled by the caller.
      */
-    fun parse(tokenizer: T, context: C, precedence: Int = -1): R {
-        var left = parsePrefix(tokenizer, context)
+    fun parse(scanner: S, context: C, precedence: Int = -1): R {
+        var left = parsePrefix(scanner, context)
         while (true) {
-            val token: String = tokenizer.current.text
+            val token: String = scanner.current.text
             val symbol = infixOrSuffix[token] ?: break
             if (symbol.precedence <= precedence) {
                 break
             }
-            tokenizer.consume()
-            left = if (symbol is Symbol.Unary<T, C, R>) {
-                symbol.build(tokenizer, context, token, left)
-            } else if (symbol is Symbol.Binary<T, C, R>) {
+            scanner.consume()
+            left = if (symbol is Symbol.Unary<S, C, R>) {
+                symbol.build(scanner, context, token, left)
+            } else if (symbol is Symbol.Binary<S, C, R>) {
                 if (symbol.rtl) {
-                    val right = parse(tokenizer, context, symbol.precedence - 1)
-                    symbol.build(tokenizer, context, token, left, right)
+                    val right = parse(scanner, context, symbol.precedence - 1)
+                    symbol.build(scanner, context, token, left, right)
                 } else {
-                    val right = parse(tokenizer, context, symbol.precedence)
-                    symbol.build(tokenizer, context, token, left, right)
+                    val right = parse(scanner, context, symbol.precedence)
+                    symbol.build(scanner, context, token, left, right)
                 }
             } else {
                 throw IllegalStateException("Unrecognized symbol type: $symbol")
@@ -70,69 +70,69 @@ open class ExpressionParser<T : Tokenizer<*>, C, R> (
         return left
     }
 
-    interface Symbol<T, C, R> {
+    interface Symbol<S, C, R> {
         val precedence: Int
 
-        class Unary<T, C, R>(
+        class Unary<S, C, R>(
             override val precedence: Int,
-            val build: (T, C, String, R) -> R
-        ) : Symbol<T, C, R>
+            val build: (S, C, String, R) -> R
+        ) : Symbol<S, C, R>
 
-        class Binary<T, C, R>(
+        class Binary<S, C, R>(
             override val precedence: Int,
             val rtl: Boolean,
-            val build: (T, C, String, R, R) -> R
-        ) : Symbol<T, C, R>
+            val build: (S, C, String, R, R) -> R
+        ) : Symbol<S, C, R>
     }
 
-    class Configuration<T, C, R>(
-        val prefix: Map<String, Symbol.Unary<T, C, R>>,
-        val infixOrSuffix: Map<String, Symbol<T, C, R>>
+    class Configuration<S, C, R>(
+        val prefix: Map<String, Symbol.Unary<S, C, R>>,
+        val infixOrSuffix: Map<String, Symbol<S, C, R>>
     )
 
     companion object  {
-        fun <T, C, R> prefix(
+        fun <S, C, R> prefix(
             precedence: Int,
             vararg names: String,
-            builder: (T, C, String, R) -> R
-        ): Configuration<T, C, R> {
-            var prefix = mutableMapOf<String, Symbol.Unary<T, C, R>>()
+            builder: (S, C, String, R) -> R
+        ): Configuration<S, C, R> {
+            var prefix = mutableMapOf<String, Symbol.Unary<S, C, R>>()
             for (name in names) {
                 prefix[name] = Symbol.Unary(precedence, builder)
             }
             return Configuration(prefix, mapOf())
         }
 
-        fun <T, C, R> infix(
+        fun <S, C, R> infix(
             precedence: Int,
             vararg names: String,
-            builder: (T, C, String, R, R) -> R
-        ): Configuration<T, C, R> {
-            val infixOrSuffix = mutableMapOf<String, Symbol<T, C, R>>()
+            builder: (S, C, String, R, R) -> R
+        ): Configuration<S, C, R> {
+            val infixOrSuffix = mutableMapOf<String, Symbol<S, C, R>>()
             for (name in names) {
                 infixOrSuffix[name] = Symbol.Binary(precedence, rtl = false, builder)
             }
             return Configuration(mapOf(), infixOrSuffix)
         }
 
-        fun <T, C, R> infixRtl(
+        fun <S, C, R> infixRtl(
             precedence: Int,
             vararg names: String,
-            builder: (T, C, String, R, R) -> R
-        ): Configuration<T, C, R> {
-            val infixOrSuffix = mutableMapOf<String, Symbol<T, C, R>>()
+            builder: (S, C, String, R, R) -> R
+        ): Configuration<S, C, R> {
+            val infixOrSuffix = mutableMapOf<String, Symbol<S, C, R>>()
             for (name in names) {
                 infixOrSuffix[name] = Symbol.Binary(precedence, rtl = true, builder)
             }
             return Configuration(mapOf(), infixOrSuffix)
         }
 
-        fun <T, C, R> suffix(
+        fun <S, C, R> suffix(
             precedence: Int,
             vararg names: String,
-            builder: (T, C, String, R) -> R
-        ): Configuration<T, C, R> {
-            val infixOrSuffix = mutableMapOf<String, Symbol<T, C, R>>()
+            builder: (S, C, String, R) -> R
+        ): Configuration<S, C, R> {
+            val infixOrSuffix = mutableMapOf<String, Symbol<S, C, R>>()
             for (name in names) {
                 infixOrSuffix[name] = Symbol.Unary(precedence, builder)
             }

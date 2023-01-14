@@ -14,7 +14,7 @@ class Lexer<T>(
      * expressions may map to the same token type. Regular expressions mapping to null will be
      * consumed without creating a token. The matches will be tried in the given order.
      */
-    private vararg val types: Pair<Regex, T?>,
+    private vararg val types: Pair<Regex, (String) -> T?>,
     /**
      * An optional normalization function for the token text.
      */
@@ -57,8 +57,8 @@ class Lexer<T>(
 
                     // Matches without type are not reported. Useful for whitespace and
                     // potentially comments.
-                    val type = candidate.second ?: break
-                    next = Token(startPos, startLine, startCol, type, normalization(type, match.value))
+                    val type = candidate.second(text) ?: break
+                    next = Token(startPos, startLine, startCol, type, normalization(type, text))
                     return true
                 }
             }
