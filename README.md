@@ -9,7 +9,7 @@ Lexer and Scanner instances are stateful and can't be reused.
 
 The RegularExpressions class contains a set of useful regular expressions for parsing "C-Style" code.
 
-Simple usage examples can be found in the [ScannerTest](shared/src/commonTest/kotlin/org/kobjects/parserlib/tokenizer/ScannerTest.kt)
+Simple usage examples can be found in the [ScannerTest](https://github.com/kobjects/parserlib/blob/main/core/src/commonTest/kotlin/org/kobjects/parserlib/tokenizer/ScannerTest.kt)
 
 
 ## Expression Parser
