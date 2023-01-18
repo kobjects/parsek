@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
     spec.name                     = 'examples'
-    spec.version                  = '0.5.0'
+    spec.version                  = '0.5.1'
     spec.homepage                 = 'Link to the Shared Module homepage'
     spec.source                   = { :git => "Not Published", :tag => "Cocoapods/#{spec.name}/#{spec.version}" }
     spec.authors                  = ''

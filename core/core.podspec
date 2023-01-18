@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
     spec.name                     = 'core'
-    spec.version                  = '0.5.0'
+    spec.version                  = '0.5.1'
     spec.homepage                 = 'https://github.com/kobjects/parserlib'
     spec.source                   = { :git => "Not Published", :tag => "Cocoapods/#{spec.name}/#{spec.version}" }
     spec.authors                  = ''

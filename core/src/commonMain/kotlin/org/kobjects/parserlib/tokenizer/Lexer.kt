@@ -19,9 +19,9 @@ class Lexer<T>(
      * An optional normalization function for the token text.
      */
     private val normalization: (T, String) -> String = { _, s -> s },
-    offset: Token<T>? = null,
+    private val offset: Token<T>? = null,
 ): Iterator<Token<T>> {
-    private var pos = offset?.pos ?: 0
+    private var pos = 0
     private var col = offset?.col ?: 0
     private var line = offset?.line ?: 0
     private var next: Token<T>? = null
@@ -59,7 +59,7 @@ class Lexer<T>(
                     // Matches without type are not reported. Useful for whitespace and
                     // potentially comments.
                     val type = candidate.second(text) ?: break
-                    next = Token(startPos, startLine, startCol, type, normalization(type, text))
+                    next = Token(startPos, startPos + (offset?.pos ?: 0), startLine, startCol, type, normalization(type, text))
                     return true
                 }
             }

@@ -12,7 +12,7 @@ open class Scanner<T>(
     private val buffer = mutableListOf<Token<T>>()
 
     // The last token encountered so far. Used to determine the position of the end of the file.
-    private var lastToken = Token(0, 0, 0, eofType, eofText)
+    private var lastToken = Token(0, 0, 0, 0, eofType, eofText)
 
     // Used for error reporting -- avoiding a potential stack overflow in error reporting when
     // input.next() throws.
@@ -89,7 +89,7 @@ open class Scanner<T>(
     fun lookAhead(index: Int): Token<T> {
         while (buffer.size <= index) {
             if (!input.hasNext()) {
-                return Token(lastToken.pos + lastToken.text.length, lastToken.line, lastToken.col + lastToken.text.length, eofType, eofText)
+                return Token(lastToken.localPos + lastToken.text.length, lastToken.pos + lastToken.text.length, lastToken.line, lastToken.col + lastToken.text.length, eofType, eofText)
             }
             lastToken = input.next()
             buffer.add(lastToken)

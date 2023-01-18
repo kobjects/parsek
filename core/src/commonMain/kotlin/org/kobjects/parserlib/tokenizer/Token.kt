@@ -1,6 +1,7 @@
 package org.kobjects.parserlib.tokenizer
 
 data class Token<T>(
+    val localPos: Int,
     val pos: Int,
     val line: Int,
     val col: Int,
