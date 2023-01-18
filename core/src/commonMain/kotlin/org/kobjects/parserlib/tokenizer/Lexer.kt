@@ -18,11 +18,12 @@ class Lexer<T>(
     /**
      * An optional normalization function for the token text.
      */
-    private val normalization: (T, String) -> String = { _, s -> s }
+    private val normalization: (T, String) -> String = { _, s -> s },
+    offset: Token<T>? = null,
 ): Iterator<Token<T>> {
-    private var pos = 0
-    private var col = 0
-    private var line = 0
+    private var pos = offset?.pos ?: 0
+    private var col = offset?.col ?: 0
+    private var line = offset?.line ?: 0
     private var next: Token<T>? = null
 
     @OptIn(ExperimentalStdlibApi::class)
