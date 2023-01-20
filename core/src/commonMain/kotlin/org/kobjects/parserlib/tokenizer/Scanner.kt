@@ -25,21 +25,21 @@ open class Scanner<T>(
         get() = current.type == eofType && current.text == eofText
 
     /** Consumes the current token and returns its text content. */
-    fun consume(): String {
+    fun consume(): Token<T> {
         if (eof) {
             throw exception("Trying to read past EOF")
         }
         // Checking for eof ensures that there is at least one element in the buffer.
-        return buffer.removeAt(0).text.apply { currentMaterialized = current }
+        return buffer.removeAt(0).apply { currentMaterialized = current }
     }
 
     /**
-     * Consumes a token with the given type and returns its text contetn. If the current token
+     * Consumes a token with the given type and returns it. If the current token
      * has a different type, an exception is thrown.
      */
-    fun consume(type: T, errorMessage: String = "Token type $type expected."): String {
+    fun consume(type: T, errorMessage: (Token<T>) -> String = { "Token type $type expected." }): Token<T> {
         if (current.type != type) {
-            throw exception(errorMessage)
+            throw exception(errorMessage(current))
         }
         return consume()
     }
@@ -48,10 +48,12 @@ open class Scanner<T>(
      * Consume and return a token with the given text value. If the current token type does not
      * match, an exception is thrown.
      */
-    fun consume(text: String, errorMessage: String = "Token text '$text' expected.") {
+    fun consume(text: String, errorMessage: (Token<T>) -> String = {"Expected: '$text'"}): Token<T> {
+        val result = current
         if (!tryConsume(text)) {
-            throw exception(errorMessage)
+            throw exception(errorMessage(current))
         }
+        return result
     }
 
     /**

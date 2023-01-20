@@ -4,7 +4,7 @@ plugins {
     id("com.android.library")
 }
 
-version = "0.5.1"
+version = "0.6.0"
 
 kotlin {
     android()

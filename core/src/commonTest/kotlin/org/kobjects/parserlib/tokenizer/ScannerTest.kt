@@ -18,12 +18,12 @@ class ScannerTest {
 
         assertFalse(scanner.eof)
         assertTypeAndValue(TokenType.NUMBER, "4", scanner.current)
-        assertEquals("4", scanner.consume())
+        assertEquals("4", scanner.consume().text)
 
         assertTypeAndValue(TokenType.SYMBOL, "+", scanner.current)
-        assertEquals( "+", scanner.consume())
+        assertEquals( "+", scanner.consume().text)
 
-        assertEquals( "x", scanner.consume())
+        assertEquals( "x", scanner.consume().text)
 
         assertEquals(null, scanner.current.type)
         assertTrue(scanner.eof)

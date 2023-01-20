@@ -22,9 +22,9 @@ fun parseBlock(scanner: Pl0Scanner, parentContext: ParsingContext?): Block {
     val symbols = mutableMapOf<String, Int?>()  // We use null as value for variables here.
     if (scanner.tryConsume("CONST")) {
         do {
-            val name = scanner.consume(TokenType.IDENT)
+            val name = scanner.consume(TokenType.IDENT).text
             scanner.consume("=")
-            val value = scanner.consume(TokenType.NUMBER).toInt()
+            val value = scanner.consume(TokenType.NUMBER).text.toInt()
             if (symbols.containsKey(name)) {
                 throw scanner.exception("Constant $name already defined.")
             }
@@ -34,9 +34,9 @@ fun parseBlock(scanner: Pl0Scanner, parentContext: ParsingContext?): Block {
     }
     if (scanner.tryConsume("VAR")) {
         do {
-            val name = scanner.consume(TokenType.IDENT)
+            val name = scanner.consume(TokenType.IDENT).text
             if (symbols.containsKey(name)) {
-                throw scanner.exception("Duplicate symbol $name")
+                throw scanner.exception("Duplicate symbol '$name'")
             }
             symbols[name] = null
         } while (scanner.tryConsume(","))
@@ -45,7 +45,7 @@ fun parseBlock(scanner: Pl0Scanner, parentContext: ParsingContext?): Block {
     val procedures = mutableMapOf<String, Block>()
     val procedureNames = mutableSetOf<String>()
     while (scanner.tryConsume("PROCEDURE")) {
-        val name = scanner.consume(TokenType.IDENT)
+        val name = scanner.consume(TokenType.IDENT).text
         scanner.consume(";")
         if (procedureNames.contains(name)) {
             scanner.exception("Duplicate procedure name $name")
@@ -71,17 +71,17 @@ fun parseBlock(scanner: Pl0Scanner, parentContext: ParsingContext?): Block {
 //   | "WHILE" condition "DO" statement ];
 fun parseStatement(scanner: Pl0Scanner, context: ParsingContext): Statement =
     if (scanner.current.type == TokenType.IDENT) {
-        val variable = scanner.consume(TokenType.IDENT)
+        val variable = scanner.consume(TokenType.IDENT).text
         scanner.consume(":=")
         Assignment(variable, parseExpression(scanner, context))
     } else if (scanner.tryConsume("CALL")) {
-        val name = scanner.consume(TokenType.IDENT)
+        val name = scanner.consume(TokenType.IDENT).text
         if (!context.procedureNames.contains(name)) {
             throw scanner.exception("Undefined procedure $name")
         }
         Call(name)
     } else if (scanner.tryConsume("?")) {
-        val variable = scanner.consume(TokenType.IDENT)
+        val variable = scanner.consume(TokenType.IDENT).text
         if (!context.symbols.containsKey(variable)) {
             throw scanner.exception("Undefined variable $variable")
         }
@@ -117,7 +117,7 @@ fun parseCondition(scanner: Pl0Scanner, context: ParsingContext) : Condition {
         return Odd(parseExpression(scanner, context));
     }
     val left = parseExpression(scanner, context)
-    val name = scanner.consume(TokenType.COMPARISON)
+    val name = scanner.consume(TokenType.COMPARISON).text
     return RelationalOperation(name, left, parseExpression(scanner, context))
 }
 
@@ -130,9 +130,9 @@ fun parseExpression(scanner: Pl0Scanner, context: ParsingContext) =
 fun parseFactor(scanner: Pl0Scanner, context: ParsingContext): Expression =
     when (scanner.current.type) {
         TokenType.NUMBER ->
-            Number(scanner.consume(TokenType.NUMBER).toInt())
+            Number(scanner.consume(TokenType.NUMBER).text.toInt())
         TokenType.IDENT ->
-            Symbol(scanner.consume(TokenType.IDENT))
+            Symbol(scanner.consume(TokenType.IDENT).text)
         else -> {
             scanner.consume("(")
             val result = parseExpression(scanner, context)
