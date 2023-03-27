@@ -1,9 +1,12 @@
-package org.kobjects.parserlib.examples.pl0
+package org.kobjects.parserlib.examples.pl0.parser
 
+import org.kobjects.parserlib.examples.pl0.node.*
+import org.kobjects.parserlib.examples.pl0.node.condition.Condition
+import org.kobjects.parserlib.examples.pl0.node.condition.Odd
+import org.kobjects.parserlib.examples.pl0.node.condition.RelationalOperation
+import org.kobjects.parserlib.examples.pl0.node.expression.*
+import org.kobjects.parserlib.examples.pl0.node.statement.*
 import org.kobjects.parserlib.expressionparser.ExpressionParser
-import org.kobjects.parserlib.tokenizer.RegularExpressions
-import org.kobjects.parserlib.tokenizer.Scanner
-import org.kobjects.parserlib.tokenizer.Lexer
 
 // program = block "." .
 fun parseProgram(scanner: Pl0Scanner): Program {
@@ -132,7 +135,11 @@ fun parseFactor(scanner: Pl0Scanner, context: ParsingContext): Expression =
         TokenType.NUMBER ->
             Number(scanner.consume(TokenType.NUMBER).text.toInt())
         TokenType.IDENT ->
-            Symbol(scanner.consume(TokenType.IDENT).text)
+            Symbol(
+                scanner.consume(
+                    TokenType.IDENT
+                ).text
+            )
         else -> {
             scanner.consume("(")
             val result = parseExpression(scanner, context)
@@ -145,44 +152,24 @@ fun parseFactor(scanner: Pl0Scanner, context: ParsingContext): Expression =
 // term = factor {("*"|"/") factor};
 val expressionParser = ExpressionParser<Pl0Scanner, ParsingContext, Expression>(
     ExpressionParser.prefix(0, "+") { _, _, _, operand -> operand },
-    ExpressionParser.prefix(0, "-") { _, _, _, operand -> Negate(operand) },
+    ExpressionParser.prefix(0, "-") { _, _, _, operand ->
+        Negate(
+            operand
+        )
+    },
     ExpressionParser.infix(1, "*", "/") { _, _, name, left, right ->
-        BinaryOperation(name, left, right) },
+        BinaryOperation(
+            name,
+            left,
+            right
+        )
+    },
     ExpressionParser.infix(2, "+", "-") { _, _, name, left, right ->
-        BinaryOperation(name, left, right) },
+        BinaryOperation(
+            name,
+            left,
+            right
+        )
+    },
 ) { scanner, context -> parseFactor(scanner, context) }
 
-/**
- * "symbols" contanins constants (mapped to an int) and variables (mapped to null)
- */
-class ParsingContext(
-    parentContext: ParsingContext?,
-    symbols: Map<String, Int?>,
-    procedureNames: Set<String>
-) {
-    val symbols: Map<String, Int?> = if (parentContext == null) symbols
-    else parentContext.symbols.toMutableMap().apply { putAll( symbols) }.toMap()
-    val procedureNames: Set<String> = if (parentContext == null) procedureNames
-    else parentContext.procedureNames.toMutableSet().apply { addAll (procedureNames)}
-}
-
-enum class TokenType {
-    BOF, IDENT, KEYWORD, NUMBER, COMPARISON, SYMBOL, EOF
-}
-
-class Pl0Scanner(input: String) : Scanner<TokenType>(
-    Lexer(
-        input,
-        RegularExpressions.WHITESPACE to { null },
-        Regex("BEGIN|CALL|CONST|DO|END|IF|ODD|PROCEDURE|THEN|VAR|WHILE") to { TokenType.KEYWORD },
-        Regex("[0-9]+") to { TokenType.NUMBER },
-        Regex("[a-zA-Z]+") to { when (it) {
-            "BEGIN", "CALL", "CONST", "DO", "END", "IF", "ODD", "PROCEDURE", "THEN", "VAR", "WHILE" -> TokenType.KEYWORD
-            else -> TokenType.IDENT
-        } },
-        Regex("<=|>=|=|<|>|#") to { TokenType.COMPARISON },
-        Regex("\\(|\\)|:=|;|\\.|!|\\?|\\+|-|\\*|/") to { TokenType.SYMBOL },
-    ),
-    TokenType.EOF,
-
-)

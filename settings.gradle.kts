@@ -7,6 +7,6 @@ pluginManagement {
 }
 
 rootProject.name = "parserlib"
-include(":androidApp")
 include(":core")
 include(":examples")
+includeBuild("convention-plugins")

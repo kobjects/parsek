@@ -1,12 +1,7 @@
-package org.kobjects.parserlib.examples.pl0
+package org.kobjects.parserlib.examples.pl0.node.condition
 
-interface Condition {
-    fun eval(context: EvaluationContext): Boolean
-}
-
-data class Odd(val experession: Expression) : Condition {
-    override fun eval(context: EvaluationContext): Boolean = (experession.eval(context) % 2) != 0
-}
+import org.kobjects.parserlib.examples.pl0.EvaluationContext
+import org.kobjects.parserlib.examples.pl0.node.expression.Expression
 
 data class RelationalOperation(
     val name: String,
