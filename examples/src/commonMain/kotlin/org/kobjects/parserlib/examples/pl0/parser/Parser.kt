@@ -8,6 +8,9 @@ import org.kobjects.parserlib.examples.pl0.node.expression.*
 import org.kobjects.parserlib.examples.pl0.node.statement.*
 import org.kobjects.parserlib.expressionparser.ExpressionParser
 
+fun parseProgram(text: String): Program =
+    parseProgram(Pl0Scanner(text))
+
 // program = block "." .
 fun parseProgram(scanner: Pl0Scanner): Program {
     val result = Program(parseBlock(scanner, null))
@@ -172,4 +175,3 @@ val expressionParser = ExpressionParser<Pl0Scanner, ParsingContext, Expression>(
         )
     },
 ) { scanner, context -> parseFactor(scanner, context) }
-

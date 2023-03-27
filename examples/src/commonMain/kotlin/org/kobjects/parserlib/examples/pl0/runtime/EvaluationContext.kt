@@ -1,4 +1,4 @@
-package org.kobjects.parserlib.examples.pl0
+package org.kobjects.parserlib.examples.pl0.runtime
 
 import org.kobjects.parserlib.examples.pl0.node.Block
 

@@ -1,7 +1,7 @@
 package org.kobjects.parserlib.examples.pl0.node
 
-import org.kobjects.parserlib.examples.pl0.EvaluationContext
-import org.kobjects.parserlib.examples.pl0.GlobalContext
+import org.kobjects.parserlib.examples.pl0.runtime.EvaluationContext
+import org.kobjects.parserlib.examples.pl0.runtime.GlobalContext
 
 /**
  * For information about pl/0, please refer to https://en.wikipedia.org/wiki/PL/0

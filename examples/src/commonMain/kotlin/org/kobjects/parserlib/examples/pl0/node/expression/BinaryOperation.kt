@@ -1,6 +1,6 @@
 package org.kobjects.parserlib.examples.pl0.node.expression
 
-import org.kobjects.parserlib.examples.pl0.EvaluationContext
+import org.kobjects.parserlib.examples.pl0.runtime.EvaluationContext
 
 data class BinaryOperation(
     val name: String,

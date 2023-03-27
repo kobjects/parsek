@@ -1,5 +1,6 @@
 package org.kobjects.parserlib.examples.pl0
 
+import org.kobjects.parserlib.examples.pl0.parser.parseProgram
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
