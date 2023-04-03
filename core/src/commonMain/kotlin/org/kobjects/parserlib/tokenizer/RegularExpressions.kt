@@ -17,5 +17,5 @@ object RegularExpressions {
     val NUMBER = Regex("(\\d+(\\.\\d*)?|\\.\\d+)([eE][+-]?\\d+)?")
     val DOUBLE_QUOTED_STRING = Regex("\"([^\"\\\\]*(\\\\.[^\"\\\\]*)*)\"")
     val SINGLE_QUOTED_STRING = Regex("'([^'\\\\]*(\\\\.[^'\\\\]*)*)'")
-    val SYMBOL = Regex("\\+|-|\\*|%|<=|>=|==|=|<|>|\\^|!")
+    val SYMBOL = Regex("\\+|-|\\*|%|<=|>=|==|=|<>|<|>|\\^|!|\\(|\\)|,")
 }

@@ -10,3 +10,4 @@ rootProject.name = "parserlib"
 include(":core")
 include(":examples")
 includeBuild("convention-plugins")
+include(":demo-jre")

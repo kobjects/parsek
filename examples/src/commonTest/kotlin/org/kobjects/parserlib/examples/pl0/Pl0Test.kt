@@ -1,6 +1,6 @@
 package org.kobjects.parserlib.examples.pl0
 
-import org.kobjects.parserlib.examples.pl0.parser.parseProgram
+import org.kobjects.parserlib.examples.pl0.parser.Pl0Parser
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -32,7 +32,7 @@ class Pl0Test {
 
     @Test
     fun testFizzBuzz() {
-        val program = parseProgram(fizzBuzz)
+        val program = Pl0Parser.parseProgram(fizzBuzz)
         val result = mutableListOf<Int>()
 
         program.eval(
@@ -44,12 +44,12 @@ class Pl0Test {
 
     @Test
     fun testStringification() {
-        val program = parseProgram(fizzBuzz)
-        val reparsed1 = parseProgram(program.toString())
+        val program = Pl0Parser.parseProgram(fizzBuzz)
+        val reparsed1 = Pl0Parser.parseProgram(program.toString())
         assertEquals(program, reparsed1)
 
         // We may insert extra parens in expressions
-        val reparsed2 = parseProgram(reparsed1.toString())
+        val reparsed2 = Pl0Parser.parseProgram(reparsed1.toString())
         assertEquals(reparsed1.toString(), reparsed2.toString())
     }
 }

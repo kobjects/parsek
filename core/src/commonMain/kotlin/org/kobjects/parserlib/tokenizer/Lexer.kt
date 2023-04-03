@@ -64,7 +64,7 @@ class Lexer<T>(
                 }
             }
             if (startPos == pos) {
-                val quote = if (pos < input.length + 40) input else (input.substring(pos, pos + 30) + "…")
+                val quote = if (pos < input.length + 40) input.substring(pos) else (input.substring(pos, pos + 30) + "…")
                 throw IllegalStateException(
                     "No token matched the following text at line $line: «$quote»}");
             }

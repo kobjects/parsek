@@ -12,9 +12,9 @@ import org.kobjects.parserlib.tokenizer.Scanner
  *
  * R is the type of the parsed expression.
  */
-open class ExpressionParser<S : Scanner<*>, C, R> (
-    vararg configuration: Configuration<S, C, R>,
-    val parsePrimary: (S, C) -> R
+open class ConfigurableExpressionParser<S : Scanner<*>, C, R> (
+    val parsePrimary: (S, C) -> R,
+    vararg val configuration: Configuration<S, C, R>,
 ) {
     private val prefix: Map<String, Symbol.Unary<S, C, R>>
     private val infixOrSuffix: Map<String, Symbol<S, C, R>>
@@ -36,7 +36,7 @@ open class ExpressionParser<S : Scanner<*>, C, R> (
         val token: String = scanner.current.text
         val prefixSymbol = prefix[token] ?: return parsePrimary(scanner, context)
         scanner.consume()
-        val operand = parse(scanner, context, prefixSymbol.precedence)
+        val operand = parseExpression(scanner, context, prefixSymbol.precedence)
         return prefixSymbol.build(scanner, context, token, operand)
     }
 
@@ -44,7 +44,7 @@ open class ExpressionParser<S : Scanner<*>, C, R> (
      * Parser an expression from the given tokenizer. Leftover tokens will be ignored and
      * may be handled by the caller.
      */
-    fun parse(scanner: S, context: C, precedence: Int = -1): R {
+    fun parseExpression(scanner: S, context: C, precedence: Int = -1): R {
         var left = parsePrefix(scanner, context)
         while (true) {
             val token: String = scanner.current.text
@@ -57,10 +57,10 @@ open class ExpressionParser<S : Scanner<*>, C, R> (
                 symbol.build(scanner, context, token, left)
             } else if (symbol is Symbol.Binary<S, C, R>) {
                 if (symbol.rtl) {
-                    val right = parse(scanner, context, symbol.precedence - 1)
+                    val right = parseExpression(scanner, context, symbol.precedence - 1)
                     symbol.build(scanner, context, token, left, right)
                 } else {
-                    val right = parse(scanner, context, symbol.precedence)
+                    val right = parseExpression(scanner, context, symbol.precedence)
                     symbol.build(scanner, context, token, left, right)
                 }
             } else {

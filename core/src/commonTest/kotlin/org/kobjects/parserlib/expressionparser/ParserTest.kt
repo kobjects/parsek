@@ -1,7 +1,7 @@
 package org.kobjects.parserlib.expressionparser
 
 
-import org.kobjects.parserlib.expressionparser.ExpressionParser.Companion.infix
+import org.kobjects.parserlib.expressionparser.ConfigurableExpressionParser.Companion.infix
 import org.kobjects.parserlib.tokenizer.Lexer
 import org.kobjects.parserlib.tokenizer.RegularExpressions
 import org.kobjects.parserlib.tokenizer.Scanner
@@ -11,19 +11,20 @@ import kotlin.test.assertEquals
 class ParserTest {
 
     // A parser that evaluates the expression directly (opposed to building a tree).
-    private val parser = ExpressionParser<Scanner<TokenType>, Unit, Double>(
+    private val parser = ConfigurableExpressionParser<Scanner<TokenType>, Unit, Double>(
+        { tokenizer, _ -> parsePrimary(tokenizer) },
         infix(2, "*") { _, _, _, left, right -> left * right },
         infix(2, "/") { _, _, _, left, right -> left / right },
         infix(1, "+") { _, _, _, left, right -> left + right },
         infix(1, "-") { _, _, _, left, right -> left - right }
-    ) { tokenizer, _ -> parsePrimary(tokenizer) }
+    )
 
     fun parsePrimary(tokenizer: Scanner<TokenType>): Double =
         when (tokenizer.current.type) {
             TokenType.NUMBER -> tokenizer.consume().text.toDouble()
             TokenType.SYMBOL ->
                 if (tokenizer.current.text == "(") {
-                    val result = parser.parse(tokenizer, Unit)
+                    val result = parser.parseExpression(tokenizer, Unit)
                     tokenizer.consume(")")
                     result
                 } else {
@@ -34,7 +35,7 @@ class ParserTest {
 
     fun evaluate(expr: String): Double {
         val scanner = createScanner(expr)
-        return parser.parse(scanner, Unit)
+        return parser.parseExpression(scanner, Unit)
     }
 
     @Test
