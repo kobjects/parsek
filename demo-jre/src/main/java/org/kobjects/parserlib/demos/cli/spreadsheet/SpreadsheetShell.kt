@@ -1,4 +1,4 @@
-package org.kobjects.parserlib.demos.cli
+package org.kobjects.parserlib.demos.cli.spreadsheet
 
 import org.kobjects.parserlib.examples.spreadsheet.Spreadsheet
 

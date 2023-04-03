@@ -1,4 +1,6 @@
-package org.kobjects.parserlib.examples.calculator
+package org.kobjects.parserlib.demos.cli.calculator
+
+import org.kobjects.parserlib.examples.calculator.Calculator
 
 fun main() {
     println("ParserLib Calculator demo. Exit by entering a blank line.")
@@ -8,7 +10,11 @@ fun main() {
         if (expression.isBlank()) {
             break
         }
-        val result = Calculator.eval(expression)
-        println("result: $result")
+        try {
+            val result = Calculator.eval(expression)
+            println("result: $result")
+        } catch (e: Exception) {
+            println(e.toString())
+        }
     }
 }

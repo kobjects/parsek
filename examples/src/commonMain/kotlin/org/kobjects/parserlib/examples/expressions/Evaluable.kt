@@ -2,7 +2,7 @@ package org.kobjects.parserlib.examples.expressions
 
 interface Evaluable {
 
-    fun precedence(): Int = 0
+    fun precedence(): Int = 10 // No parens required by default
 
     fun eval(ctx: Context): Any
 
@@ -19,8 +19,8 @@ interface Evaluable {
     fun isBuiltin(kind: Builtin.Kind) =
         (this is Builtin) && this.kind == kind
 
-    fun toString(parentPrecedence: Int) =
-        if (parentPrecedence < precedence()) "($this)"
+    fun parenthesize(parentPrecedence: Int) =
+        if (parentPrecedence > precedence()) "($this)"
         else toString()
 
 

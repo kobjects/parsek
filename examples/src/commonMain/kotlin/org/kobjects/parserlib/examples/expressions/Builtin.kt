@@ -122,9 +122,11 @@ class Builtin(val kind: Kind, vararg val param: Evaluable) : Evaluable {
     override fun toString(): String {
         if (precedence() != 0) {
             return if (param.size == 1)
-                "$kind ${param[0].toString(precedence())}"
+                "$kind ${param[0].parenthesize(precedence())}"
             else
-                "${param[0].toString(precedence())} $kind ${param[1].toString(precedence() - 1)}"
+                param[0].parenthesize(precedence()) +
+                        (if (precedence() >= Kind.MUL.precedence) "$kind" else " $kind ") +
+                        param[1].parenthesize(precedence() - 1)
 
         }
         return "$kind(${param.joinToString { it.toString() }})"
