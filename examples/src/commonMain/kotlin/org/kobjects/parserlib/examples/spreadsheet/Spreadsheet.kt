@@ -89,8 +89,8 @@ class Spreadsheet : Context() {
         } else if (tokenizer.current.type == TokenType.IDENTIFIER && tokenizer.lookAhead(1).text == "=" || tokenizer.tryConsume("let")) {
             val expr = ExpressionParser.parseExpression(tokenizer, this)
             require (expr is Builtin && expr.kind == Builtin.Kind.EQ) { "Assignment expression expected" }
-            require(expr.param[0] is Settable) { "Assignment target must be settable." }
-            (expr.param[0] as Settable).set(this, expr.param[1])
+            require(expr.param[0] is CellReference) { "Assignment target must be a cell reference." }
+            (expr.param[0] as CellReference).set(this, expr.param[1])
             return emptyList()
         }
         throw tokenizer.exception("Unrecognized command: '${tokenizer.current.text}'")

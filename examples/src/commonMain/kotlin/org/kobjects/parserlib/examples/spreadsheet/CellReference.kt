@@ -2,8 +2,9 @@ package org.kobjects.parserlib.examples.spreadsheet
 
 import org.kobjects.parserlib.examples.expressions.Context
 import org.kobjects.parserlib.examples.expressions.Evaluable
+import org.kobjects.parserlib.examples.expressions.Settable
 
-class CellReference(val col: Int, val row: Int) : Evaluable, Settable {
+class CellReference(val col: Int, val row: Int) : Evaluable {
 
     constructor(name: String) : this(name[0].digitToInt(radix = 36) - 10, name.substring(1).toInt() - 1)
 
@@ -15,8 +16,8 @@ class CellReference(val col: Int, val row: Int) : Evaluable, Settable {
         return (ctx as Spreadsheet)[col, row].value?.toString() ?: ""
     }
 
-    override fun set(spreadsheet: Spreadsheet, expression: Evaluable?) {
-        spreadsheet[col, row].expression = expression
+    fun set(ctx: Context, expression: Evaluable) {
+        (ctx as Spreadsheet)[col, row].expression = expression
     }
 
 }

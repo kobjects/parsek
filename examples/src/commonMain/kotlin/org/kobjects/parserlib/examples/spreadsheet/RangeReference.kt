@@ -2,9 +2,9 @@ package org.kobjects.parserlib.examples.spreadsheet
 
 import org.kobjects.parserlib.examples.expressions.Context
 import org.kobjects.parserlib.examples.expressions.Evaluable
-import org.kobjects.parserlib.examples.expressions.Variable
+import org.kobjects.parserlib.examples.expressions.Settable
 
-class RangeReference(from: Evaluable, to: Evaluable) : Evaluable, Settable {
+class RangeReference(from: Evaluable, to: Evaluable) : Evaluable {
     val from = from as CellReference
     val to = to as CellReference
     override fun eval(ctx: Context): Any {
@@ -17,10 +17,11 @@ class RangeReference(from: Evaluable, to: Evaluable) : Evaluable, Settable {
         return result
     }
 
-    override fun set(spreadsheet: Spreadsheet, expression: Evaluable?) {
+    fun set(ctx: Context, expression: Evaluable) {
+        ctx as Spreadsheet
         for (rowIndex in from.row .. to.row) {
             for (colIndex in from.col .. to.col ) {
-                spreadsheet[colIndex, rowIndex].expression = expression
+                ctx[colIndex, rowIndex].expression = expression
             }
         }
     }

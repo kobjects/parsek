@@ -6,7 +6,13 @@ interface Evaluable {
 
     fun eval(ctx: Context): Any
 
-    fun evalDouble(context: Context): Double = (eval(context) as Number).toDouble()
+    fun evalDouble(context: Context): Double {
+        val value = eval(context)
+        return if (value is Number) value.toDouble()
+        else if (value is Boolean) {
+            if (value) 1.0 else 0.0
+        } else throw IllegalArgumentException("Number expected; got: 'value'")
+    }
 
     fun evalInt(context: Context): Int = (eval(context) as Number).toInt()
 
@@ -22,6 +28,8 @@ interface Evaluable {
     fun parenthesize(parentPrecedence: Int) =
         if (parentPrecedence > precedence()) "($this)"
         else toString()
+
+    fun evalBoolean(context: Context): Boolean = evalDouble(context) != 0.0
 
 
 }

@@ -55,8 +55,4 @@ object ExpressionParser : ConfigurableExpressionParser<Tokenizer, Context, Evalu
             else ->
                 throw tokenizer.exception("Unrecognized primary expression.")
     }
-
-    // Mostly for testing
-    fun eval(expr: String, context: Context = Context()) =
-        parseExpression(Tokenizer(expr), context).eval(context)
 }
