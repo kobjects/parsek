@@ -6,7 +6,7 @@ class Line(
 ) {
     override fun toString() = number.toString() + " " + statements.joinToString(" : ")
 
-    fun eval(interpreter: Interpreter) {
+    suspend fun eval(interpreter: Interpreter) {
         val currentLine = interpreter.currentLineIndex
         while (interpreter.currentStatementIndex < statements.size) {
             val index = interpreter.currentStatementIndex

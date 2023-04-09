@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
     spec.name                     = 'core'
-    spec.version                  = '0.6.0'
+    spec.version                  = '0.7.0'
     spec.homepage                 = 'https://github.com/kobjects/parserlib'
     spec.source                   = { :http=> ''}
     spec.authors                  = ''

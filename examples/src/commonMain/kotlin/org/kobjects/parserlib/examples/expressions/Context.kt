@@ -18,7 +18,7 @@ open class Context {
     }
 
 
-    fun eval(expr: String): Any? {
+    fun eval(expr: String): Any {
         val tokenizer = Tokenizer(expr)
         val parsed = ExpressionParser.parseExpression(tokenizer, this)
         if (!tokenizer.eof) {

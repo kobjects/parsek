@@ -9,7 +9,7 @@ class Builtin(val kind: Kind, vararg val param: Evaluable) : Evaluable {
         Kind.values().first() { it != Kind.NEG && it.toString() == name }, *param)
 
     enum class Kind(
-        val symbol: String = "",
+        val symbol: String? = null,
         val precedence: Int = 0,
         val parameterCount: Int = 1,
         val minParameterCount: Int = parameterCount,
@@ -20,26 +20,31 @@ class Builtin(val kind: Kind, vararg val param: Evaluable) : Evaluable {
         ASC,
         ATN,
         CHR,
+        CHR_("CHR$"),
         COS,
         DIV("/", precedence = 5, parameterCount = 2),
+        EMPTY(""),  // Represents grouping brackts
         EQ("=", precedence = 3, parameterCount = 2),
         EXP,
         GE(">=", precedence = 3, parameterCount = 2),
         GT(">", precedence = 3, parameterCount = 2),
         INT,
         LE("<=", precedence = 3, parameterCount = 2),
-        LEFT(minParameterCount = 1, parameterCount = 2),
+        LEFT(parameterCount = 2),
+        LEFT_("LEFT$", parameterCount = 2),
         LT("<", precedence = 3, parameterCount = 2),
         LEN,
         LOG,
         MID(parameterCount = 3, minParameterCount = 2),
+        MID_("MID$", parameterCount = 3, minParameterCount = 2),
         MUL("*", precedence = 5, parameterCount = 2),
         NE("<>", precedence = 3, parameterCount = 2),
         NEG("-", precedence = 6),
         NOT(precedence = 0),
         OR(precedence = 1, minParameterCount = 2),
         POW("^", precedence = 7, minParameterCount = 2),
-        RIGHT(parameterCount = 2),
+        RIGHT(parameterCount = 2, minParameterCount = 1),
+        RIGHT_("RIGHT$", parameterCount = 2, minParameterCount = 1),
         RND(minParameterCount = 0),
         SIN,
         SGN,
@@ -50,7 +55,7 @@ class Builtin(val kind: Kind, vararg val param: Evaluable) : Evaluable {
         TAN,
         VAL;
 
-        override fun toString(): String = symbol.ifEmpty { name }
+        override fun toString(): String = symbol ?: name
     }
 
     override fun precedence() = kind.precedence
@@ -70,9 +75,11 @@ class Builtin(val kind: Kind, vararg val param: Evaluable) : Evaluable {
         }
         Kind.ASC -> param[0].evalString(ctx)[0].code.toDouble()
         Kind.ATN -> atan(param[0].evalDouble(ctx))
+        Kind.CHR_,
         Kind.CHR -> Char(param[0].evalInt(ctx)).toString()
         Kind.COS -> cos(param[0].evalDouble(ctx))
         Kind.DIV -> param[0].evalDouble(ctx) / param[1].evalDouble(ctx)
+        Kind.EMPTY -> param[0].evalDouble(ctx)
         Kind.EQ -> param[0].eval(ctx) == param[1].eval(ctx)
         Kind.EXP -> exp(param[0].evalDouble(ctx))
         Kind.GE -> compare(ctx) { it >= 0}
@@ -81,8 +88,10 @@ class Builtin(val kind: Kind, vararg val param: Evaluable) : Evaluable {
         Kind.LE -> compare(ctx) { it <= 0}
         Kind.LT -> compare(ctx) { it < 0}
         Kind.LEN -> param[0].evalString(ctx).length
+        Kind.LEFT_,
         Kind.LEFT -> param[0].evalString(ctx).substring(0, param[1].evalInt(ctx))
         Kind.LOG -> ln(param[0].evalDouble(ctx))
+        Kind.MID_,
         Kind.MID -> {
             val s = param[0].evalString(ctx)
             val start = param[1].evalInt(ctx)
@@ -95,9 +104,11 @@ class Builtin(val kind: Kind, vararg val param: Evaluable) : Evaluable {
         Kind.NOT -> param[0].evalInt(ctx).inv()
         Kind.OR -> param[0].evalInt(ctx) or param[1].evalInt(ctx)
         Kind.POW -> param[0].evalDouble(ctx).pow(param[1].evalDouble(ctx))
+        Kind.RIGHT_,
         Kind.RIGHT -> {
             val s = param[0].evalString(ctx)
-            s.substring(s.length - param[1].evalInt(ctx))
+            val count = if (param.size > 1)  param[1].evalInt(ctx) else 1
+            s.substring(max(0, s.length - count))
         }
         Kind.RND -> if (param.size == 1) Random(param[0].evalInt(ctx)).nextDouble() else Random.nextDouble()
         Kind.SIN -> sin(param[0].evalDouble(ctx))

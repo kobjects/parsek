@@ -100,7 +100,7 @@ open class ConfigurableExpressionParser<S : Scanner<*>, C, R> (
             for (name in names) {
                 prefix[name] = Symbol.Unary(precedence, builder)
             }
-            return Configuration(prefix, mapOf())
+            return Configuration(prefix, emptyMap())
         }
 
         fun <S, C, R> infix(
@@ -112,7 +112,7 @@ open class ConfigurableExpressionParser<S : Scanner<*>, C, R> (
             for (name in names) {
                 infixOrSuffix[name] = Symbol.Binary(precedence, rtl = false, builder)
             }
-            return Configuration(mapOf(), infixOrSuffix)
+            return Configuration(emptyMap(), infixOrSuffix)
         }
 
         fun <S, C, R> infixRtl(
@@ -124,7 +124,7 @@ open class ConfigurableExpressionParser<S : Scanner<*>, C, R> (
             for (name in names) {
                 infixOrSuffix[name] = Symbol.Binary(precedence, rtl = true, builder)
             }
-            return Configuration(mapOf(), infixOrSuffix)
+            return Configuration(emptyMap(), infixOrSuffix)
         }
 
         fun <S, C, R> suffix(
@@ -136,7 +136,7 @@ open class ConfigurableExpressionParser<S : Scanner<*>, C, R> (
             for (name in names) {
                 infixOrSuffix[name] = Symbol.Unary(precedence, builder)
             }
-            return Configuration(mapOf(), infixOrSuffix)
+            return Configuration(emptyMap(), infixOrSuffix)
         }
     }
 }

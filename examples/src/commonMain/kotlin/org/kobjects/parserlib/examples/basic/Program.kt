@@ -3,7 +3,7 @@ package org.kobjects.parserlib.examples.basic
 class Program {
     val lines = mutableListOf<Line>()
 
-    fun eval(interpreter: Interpreter) {
+    suspend fun eval(interpreter: Interpreter) {
         while(interpreter.currentLineIndex < lines.size) {
             val lineIndex = interpreter.currentLineIndex
             lines[interpreter.currentLineIndex].eval(interpreter)

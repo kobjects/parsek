@@ -38,21 +38,39 @@ object ExpressionParser : ConfigurableExpressionParser<Tokenizer, Context, Evalu
                 )
             }
             TokenType.IDENTIFIER -> {
-                val name = tokenizer.consume().text
-                if (tokenizer.tryConsume("(")) {
-                   val parameters = mutableListOf<Evaluable>()
-                   if (tokenizer.current.text != ")") {
-                       do {
-                           parameters.add(parseExpression(tokenizer, context))
-                       } while (tokenizer.tryConsume(","))
-                   }
-                   tokenizer.consume(")")
-                   context.resolveFunction(name, parameters) ?: throw IllegalArgumentException("Unrecognized funciton $name")
-                } else {
-                   context.resolveVariable(name)
+                var name = tokenizer.consume().text
+                if (name.equals("FN", ignoreCase = true) && tokenizer.current.type == TokenType.IDENTIFIER) {
+                    name += " " + tokenizer.consume().text
                 }
+
+                if (tokenizer.tryConsume("(")) {
+                    val params = parseParameterList(tokenizer, context, ")")
+                    context.resolveFunction(name, params)!!
+                } else {
+                    context.resolveVariable(name)
+                }
+            }
+            TokenType.SYMBOL -> {
+                if (!tokenizer.tryConsume("(")) {
+                    throw tokenizer.exception("Unrecognized primary expression.")
+                }
+                val expr = parseExpression(tokenizer, context)
+                tokenizer.consume(")")
+                Builtin(Builtin.Kind.EMPTY, expr)
             }
             else ->
                 throw tokenizer.exception("Unrecognized primary expression.")
+    }
+
+
+    fun parseParameterList(tokenizer: Tokenizer, context: Context, endToken: String): List<Evaluable> {
+        val parameters = mutableListOf<Evaluable>()
+        if (tokenizer.current.text != endToken) {
+                do {
+                    parameters.add(parseExpression(tokenizer, context))
+                } while (tokenizer.tryConsume(","))
+            }
+            tokenizer.consume(endToken)
+        return parameters
     }
 }

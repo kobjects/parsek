@@ -25,6 +25,8 @@ interface Evaluable {
     fun isBuiltin(kind: Builtin.Kind) =
         (this is Builtin) && this.kind == kind
 
+    fun isIntLiteral() = (this is Literal) && this.value is Number && this.value.toDouble() == this.value.toInt().toDouble()
+
     fun parenthesize(parentPrecedence: Int) =
         if (parentPrecedence > precedence()) "($this)"
         else toString()

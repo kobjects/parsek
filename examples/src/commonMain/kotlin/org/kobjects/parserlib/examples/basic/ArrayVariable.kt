@@ -6,7 +6,7 @@ import org.kobjects.parserlib.examples.expressions.Settable
 
 class ArrayVariable(
     val name: String,
-    vararg val parameters: Evaluable,
+    val parameters: List<Evaluable>,
 ): Evaluable, Settable {
     val defaultValue: Any
         get() = if (name.endsWith("$")) "" else 0.0
@@ -21,7 +21,7 @@ class ArrayVariable(
             return defaultValue
         }
 
-        for (i in parameters.indices - 1) {
+        for (i in 0 until parameters.size - 1) {
             currentMap = currentMap.getOrElse(parameters[i].evalInt(ctx)) {
                 return defaultValue
             } as MutableMap<Int, Any>
@@ -35,7 +35,7 @@ class ArrayVariable(
     override fun set(ctx: Context, value: Any) {
         ctx as Interpreter
 
-        while (parameters.size > ctx.arrayVariables.size) {
+        while (parameters.size >= ctx.arrayVariables.size) {
             ctx.arrayVariables.add(mutableMapOf())
         }
 
@@ -43,7 +43,7 @@ class ArrayVariable(
             mutableMapOf()
         }
 
-        for (i in parameters.indices - 1) {
+        for (i in 0 until  parameters.size - 1) {
             currentMap = currentMap.getOrPut(parameters[i].evalInt(ctx)) {
                 mutableMapOf<Int, Any>()
             } as MutableMap<Int, Any>

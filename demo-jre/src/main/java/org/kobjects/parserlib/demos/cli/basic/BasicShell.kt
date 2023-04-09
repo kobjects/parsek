@@ -2,7 +2,7 @@ package org.kobjects.parserlib.demos.cli.basic;
 
 import org.kobjects.parserlib.examples.basic.Interpreter
 
-fun main() {
+suspend fun main() {
 
     val interpreter = Interpreter()
 

@@ -48,9 +48,13 @@ open class Scanner<T>(
      * Consume and return a token with the given text value. If the current token type does not
      * match, an exception is thrown.
      */
-    fun consume(text: String, errorMessage: (Token<T>) -> String = {"Expected: '$text'"}): Token<T> {
+    fun consume(
+        text: String,
+        ignoreCase: Boolean = false,
+        errorMessage: (Token<T>) -> String = {"Expected: '$text'"}
+    ): Token<T> {
         val result = current
-        if (!tryConsume(text)) {
+        if (!tryConsume(text, ignoreCase)) {
             throw exception(errorMessage(current))
         }
         return result
@@ -60,8 +64,8 @@ open class Scanner<T>(
      * If the current token text value matches the given string, it is consumed and true
      * is returned. Otherwise, false is returned.
      */
-    fun tryConsume(value: String): Boolean {
-        if (current.text == value) {
+    fun tryConsume(value: String, ignoreCase: Boolean = false, ): Boolean {
+        if (current.text.equals(value, ignoreCase)) {
             consume()
             return true
         }

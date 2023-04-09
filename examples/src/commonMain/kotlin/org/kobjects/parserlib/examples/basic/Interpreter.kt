@@ -5,17 +5,18 @@ import kotlin.math.max
 
 class Interpreter(
     val printFn: (String) -> Unit = { println(it) },
-    val readFn: (String) -> String = {
+    val readFn: suspend (String) -> String = {
         if (it.isNotEmpty()) {
             printFn(it)
         }
         readln()
          },
-    val loadFn: (name: String) -> String = { throw UnsupportedOperationException() },
-    val saveFn: (name: String, content: String) -> Unit = { _, _ -> throw UnsupportedOperationException() },
+    val loadFn: suspend (name: String) -> String = { throw UnsupportedOperationException() },
+    val saveFn: suspend (name: String, content: String) -> Unit = { _, _ -> throw UnsupportedOperationException() },
 ) : Context() {
     val program = Program()
     val arrayVariables = mutableListOf<MutableMap<String,MutableMap<Int,Any>>>()
+    val functionDefinitions = mutableMapOf<String, FnDefinition>()
     val stack = mutableListOf<StackEntry>()
 
     var trace = false
@@ -42,9 +43,21 @@ class Interpreter(
         currentStatementIndex = stoppedAt.second
     }
 
-    fun def(params: Array<out Evaluable>) {
+    fun defFn(assignment: Evaluable) {
+        require(assignment is Builtin
+                && assignment.kind == Builtin.Kind.EQ) { "Assignment expected after def." }
 
+        val fn = assignment.param[0]
+        require(fn is FnCall) { "Function declaration expected; got: $fn" }
+
+        val paramterNames = fn.params.map {
+            require(it is Variable) { "Parameter name expected; got $it" }
+            it.name
+        }
+
+        functionDefinitions[fn.name.lowercase()] = FnDefinition(paramterNames, assignment.param[1])
     }
+
     fun dump() {
         TODO("Not yet implemented")
     }
@@ -96,7 +109,7 @@ class Interpreter(
         }
     }
 
-    fun input(params: Array<out Evaluable>, delimiters: List<String>) {
+    suspend fun input(params: Array<out Evaluable>, delimiters: List<String>) {
         if (pendingOutput.isNotEmpty()) {
             print("\n")
         }
@@ -135,7 +148,7 @@ class Interpreter(
         }
     }
 
-    fun load(fileName: String) {
+    suspend fun load(fileName: String) {
         val code = loadFn(fileName)
         val lines = code.split("\n")
         new()
@@ -222,7 +235,7 @@ class Interpreter(
         }
     }
 
-    fun processInputLine(line: String): Boolean {
+    suspend fun processInputLine(line: String): Boolean {
         val tokenizer = Tokenizer(line)
         return when (tokenizer.current.type) {
             TokenType.EOF -> false
@@ -271,6 +284,17 @@ class Interpreter(
         }
     }
 
+    override fun resolveFunction(name: String, parameters: List<Evaluable>): Evaluable? {
+        val resolved = super.resolveFunction(name, parameters)
+        return if (resolved != null) {
+            resolved
+        } else if (name.lowercase().startsWith("fn")) {
+            FnCall(name, parameters)
+        } else {
+            ArrayVariable(name, parameters)
+        }
+    }
+
     fun restore(lineNumber: Int?) {
         dataStatement = null
         dataPosition.fill(0)
@@ -291,7 +315,7 @@ class Interpreter(
         throw IllegalStateException("RETURN without GOSUB.")
     }
 
-    fun runCommand() {
+    suspend fun runCommand() {
         clear()
         currentLineIndex = 0
         currentStatementIndex = 0
@@ -303,7 +327,7 @@ class Interpreter(
         goto(Int.MAX_VALUE)
     }
 
-    fun save(fileName: String) {
+    suspend fun save(fileName: String) {
         saveFn(fileName, program.toString())
     }
 

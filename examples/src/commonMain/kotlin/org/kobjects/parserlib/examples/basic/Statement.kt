@@ -26,7 +26,7 @@ class Statement(
         TRON, TROFF
     }
 
-    fun eval(interpreter: Interpreter) {
+    suspend fun eval(interpreter: Interpreter) {
         if (interpreter.trace && interpreter.currentLineIndex != -1) {
             val line = interpreter.program.lines[interpreter.currentLineIndex]
             interpreter.printFn("$line : ${interpreter.currentStatementIndex} : $this")
@@ -35,7 +35,7 @@ class Statement(
             Kind.CLEAR -> interpreter.clear()
             Kind.CONTINUE -> interpreter.continueCommand()
             Kind.DATA -> {}
-            Kind.DEF -> interpreter.def(params)
+            Kind.DEF -> interpreter.defFn(params[0])
             Kind.DIM -> {}
             Kind.DUMP -> interpreter.dump()
             Kind.EMPTY -> {}

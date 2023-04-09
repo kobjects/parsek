@@ -6,7 +6,7 @@ plugins {
 
 // CocoaPods requires the podspec to have a version.
 group = "org.kobjects.parserlib"
-version = "0.7.0"
+version = "0.7.1"
 
 kotlin {
     iosX64()
