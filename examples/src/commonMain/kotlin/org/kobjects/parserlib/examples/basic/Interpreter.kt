@@ -10,13 +10,12 @@ class Interpreter(
             printFn(it)
         }
         readln()
-         },
+    },
     val loadFn: suspend (name: String) -> String = { throw UnsupportedOperationException() },
     val saveFn: suspend (name: String, content: String) -> Unit = { _, _ -> throw UnsupportedOperationException() },
 ) : Context() {
     val program = Program()
-    val arrayVariables = mutableListOf<MutableMap<String,MutableMap<Int,Any>>>()
-    val functionDefinitions = mutableMapOf<String, FnDefinition>()
+
     val stack = mutableListOf<StackEntry>()
 
     var trace = false
@@ -31,7 +30,7 @@ class Interpreter(
     var dataStatement: Statement? = null
 
     fun clear() {
-        arrayVariables.clear()
+        parameterized.clear()
         variables.clear()
     }
 
@@ -47,15 +46,15 @@ class Interpreter(
         require(assignment is Builtin
                 && assignment.kind == Builtin.Kind.EQ) { "Assignment expected after def." }
 
-        val fn = assignment.param[0]
-        require(fn is FnCall) { "Function declaration expected; got: $fn" }
+        val call = assignment.param[0]
+        require(call is Call) { "Function declaration expected; got: $call" }
 
-        val paramterNames = fn.params.map {
+        val paramterNames = call.parameters.map {
             require(it is Variable) { "Parameter name expected; got $it" }
             it.name
         }
 
-        functionDefinitions[fn.name.lowercase()] = FnDefinition(paramterNames, assignment.param[1])
+        call.set(this, FunctionDefinition(paramterNames, assignment.param[1]))
     }
 
     fun dump() {
@@ -159,6 +158,8 @@ class Interpreter(
 
     fun new() {
         clear()
+        restore(null)
+        stack.clear()
         program.lines.clear()
     }
 
@@ -218,7 +219,7 @@ class Interpreter(
     }
 
     fun print(params: Array<out Evaluable>, delimiters: List<String>) {
-        for (i in 0 until params.size) {
+        for (i in params.indices) {
             val value = params[i].eval(this)
             if (value is Double) {
                 print((if (value < 0) "" else " ") + value + " ")
@@ -284,17 +285,6 @@ class Interpreter(
         }
     }
 
-    override fun resolveFunction(name: String, parameters: List<Evaluable>): Evaluable? {
-        val resolved = super.resolveFunction(name, parameters)
-        return if (resolved != null) {
-            resolved
-        } else if (name.lowercase().startsWith("fn")) {
-            FnCall(name, parameters)
-        } else {
-            ArrayVariable(name, parameters)
-        }
-    }
-
     fun restore(lineNumber: Int?) {
         dataStatement = null
         dataPosition.fill(0)
@@ -320,6 +310,18 @@ class Interpreter(
         currentLineIndex = 0
         currentStatementIndex = 0
         program.eval(this)
+    }
+
+    suspend fun runShell() {
+        printFn("BASIC Interpreter")
+        while (true) {
+            val s = readFn("READY.")
+            try {
+                processInputLine(s)
+            } catch (e: Exception) {
+                printFn(e.toString())
+            }
+        }
     }
 
     fun stop() {

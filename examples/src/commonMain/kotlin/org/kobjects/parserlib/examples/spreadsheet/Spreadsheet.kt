@@ -20,7 +20,7 @@ class Spreadsheet : Context() {
 
     override fun resolveVariable(name: String) = CellReference(name)
 
-    override fun resolveFunction(name: String, parameters: List<Evaluable>): Evaluable? {
+    override fun resolveFunction(name: String, parameters: List<Evaluable>): Evaluable {
         val upper = name.uppercase()
         for (kind in RangeFunction.Kind.values()) {
             if (kind.name == upper) {

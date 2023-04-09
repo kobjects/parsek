@@ -1,10 +1,8 @@
-package org.kobjects.parserlib.examples.basic
+package org.kobjects.parserlib.examples.expressions
 
-import org.kobjects.parserlib.examples.expressions.Context
-import org.kobjects.parserlib.examples.expressions.Evaluable
-import org.kobjects.parserlib.examples.expressions.Settable
+import org.kobjects.parserlib.examples.basic.Interpreter
 
-class ArrayVariable(
+class Call(
     val name: String,
     val parameters: List<Evaluable>,
 ): Evaluable, Settable {
@@ -12,14 +10,19 @@ class ArrayVariable(
         get() = if (name.endsWith("$")) "" else 0.0
 
     override fun eval(ctx: Context): Any {
-        ctx as Interpreter
-        if (parameters.size > ctx.arrayVariables.size) {
+        if (parameters.size > ctx.parameterized.size) {
             return defaultValue
         }
 
-        var currentMap = ctx.arrayVariables[parameters.size].getOrElse(name) {
+        val rootValue = ctx.parameterized[parameters.size].getOrElse(name) {
             return defaultValue
         }
+
+        if (rootValue is FunctionDefinition) {
+           return rootValue.eval(ctx, parameters)
+        }
+
+        var currentMap = rootValue as Map<Int, Any>
 
         for (i in 0 until parameters.size - 1) {
             currentMap = currentMap.getOrElse(parameters[i].evalInt(ctx)) {
@@ -35,13 +38,19 @@ class ArrayVariable(
     override fun set(ctx: Context, value: Any) {
         ctx as Interpreter
 
-        while (parameters.size >= ctx.arrayVariables.size) {
-            ctx.arrayVariables.add(mutableMapOf())
+        while (parameters.size >= ctx.parameterized.size) {
+            ctx.parameterized.add(mutableMapOf())
         }
 
-        var currentMap = ctx.arrayVariables[parameters.size].getOrPut(name) {
-            mutableMapOf()
+        if (value is FunctionDefinition) {
+            ctx.parameterized[parameters.size][name] = value
+            return
         }
+
+        var currentMap = ctx.parameterized[parameters.size].getOrPut(name) {
+            mutableMapOf<Int, Any>()
+        } as MutableMap<Int, Any>
+
 
         for (i in 0 until  parameters.size - 1) {
             currentMap = currentMap.getOrPut(parameters[i].evalInt(ctx)) {
@@ -51,4 +60,6 @@ class ArrayVariable(
 
         currentMap[parameters.last().evalInt(ctx)] = value
     }
+
+    override fun toString() = name + "(" + parameters.joinToString(", ") + ")"
 }

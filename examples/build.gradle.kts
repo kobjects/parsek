@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "org.kobjects.parserlib"
-version = "0.7.1"
+version = "0.7.3"
 
 kotlin {
     iosX64()

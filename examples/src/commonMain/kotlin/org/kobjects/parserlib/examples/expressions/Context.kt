@@ -6,14 +6,14 @@ package org.kobjects.parserlib.examples.expressions
  */
 open class Context {
     val variables = mutableMapOf<String, Any>()
+    // The array index corresponds to the number of parameters.
+    val parameterized = mutableListOf<MutableMap<String, Any>>()
 
+    open fun resolveVariable(name: String): Evaluable = Variable(name.lowercase())
 
-    open fun resolveVariable(name: String): Evaluable = Variable(name)
-
-    open fun resolveFunction(name: String, parameters: List<Evaluable>): Evaluable? {
-        val n = (if (name.endsWith("_")) name.substring(0, name.length - 1) + "$" else name).uppercase()
-        val builtin = Builtin.Kind.values().firstOrNull{it.name == n}
-        return if (builtin == null) null
+    open fun resolveFunction(name: String, parameters: List<Evaluable>): Evaluable {
+        val builtin = Builtin.Kind.values().firstOrNull{it.toString().equals(name, ignoreCase = true)}
+        return if (builtin == null) Call(name, parameters)
             else Builtin(builtin, *parameters.toTypedArray())
     }
 
