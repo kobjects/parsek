@@ -43,18 +43,8 @@ class Interpreter(
     }
 
     fun defFn(assignment: Evaluable) {
-        require(assignment is Builtin
-                && assignment.kind == Builtin.Kind.EQ) { "Assignment expected after def." }
-
-        val call = assignment.param[0]
-        require(call is Call) { "Function declaration expected; got: $call" }
-
-        val paramterNames = call.parameters.map {
-            require(it is Variable) { "Parameter name expected; got $it" }
-            it.name
-        }
-
-        call.set(this, FunctionDefinition(paramterNames, assignment.param[1]))
+        val definition = FunctionDefinition(assignment)
+        ((assignment as Builtin).param[0] as Settable).set(this, definition)
     }
 
     fun dump() {

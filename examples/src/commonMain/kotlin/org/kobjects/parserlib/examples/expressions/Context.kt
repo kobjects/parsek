@@ -20,11 +20,15 @@ open class Context {
 
     fun eval(expr: String): Any {
         val tokenizer = Tokenizer(expr)
+        val def = tokenizer.tryConsume("def")
         val parsed = ExpressionParser.parseExpression(tokenizer, this)
         if (!tokenizer.eof) {
             throw tokenizer.exception("End of input expected")
         }
-        return if (parsed is Builtin && parsed.kind == Builtin.Kind.EQ && parsed.param[0] is Settable) {
+        return if (def) {
+            val definition = FunctionDefinition(parsed)
+            ((parsed as Builtin).param[0] as Settable).set(this, definition)
+        } else if (parsed is Builtin && parsed.kind == Builtin.Kind.EQ && parsed.param[0] is Settable) {
             (parsed.param[0] as Settable).set(this, parsed.param[1])
         } else {
             parsed.eval(this)

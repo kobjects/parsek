@@ -1,6 +1,27 @@
 package org.kobjects.parserlib.examples.expressions
 
-class FunctionDefinition(val parameterNames: List<String>, val expression: Evaluable) {
+import org.kobjects.parserlib.examples.pl0.node.statement.Assignment
+
+class FunctionDefinition(assignment: Evaluable) {
+
+    val parameterNames: List<String>
+    val expression: Evaluable
+
+    init {
+        require(assignment is Builtin
+                && assignment.kind == Builtin.Kind.EQ) { "Assignment expected after def." }
+
+        val call = assignment.param[0]
+        require(call is Call) { "Function declaration expected; got: $call" }
+
+        parameterNames = call.parameters.map {
+            require(it is Variable) { "Parameter name expected; got $it" }
+            it.name
+        }
+
+        expression = assignment.param[1]
+    }
+
 
     fun eval(ctx: Context, params: List<Evaluable>): Any {
         val saved = arrayOfNulls<Any>(parameterNames.size)

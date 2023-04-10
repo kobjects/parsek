@@ -1,7 +1,5 @@
 package org.kobjects.parserlib.examples.expressions
 
-import org.kobjects.parserlib.examples.basic.Interpreter
-
 class Call(
     val name: String,
     val parameters: List<Evaluable>,
@@ -36,9 +34,7 @@ class Call(
     }
 
     override fun set(ctx: Context, value: Any) {
-        ctx as Interpreter
-
-        while (parameters.size >= ctx.parameterized.size) {
+         while (parameters.size >= ctx.parameterized.size) {
             ctx.parameterized.add(mutableMapOf())
         }
 

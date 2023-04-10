@@ -8,4 +8,5 @@ object InvisibleStringLiteral : Evaluable {
 
     override fun eval(ctx: Context) = INVISIBLE_STRING
 
+    override fun toString() = INVISIBLE_STRING
 }
