@@ -1,4 +1,4 @@
-package org.kobjects.parserlib.demos.cli.cas
+package org.kobjects.parserlib.examples.cas
 
 import org.kobjects.parserlib.examples.algebra.Cas
 

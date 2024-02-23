@@ -1,6 +1,4 @@
-package org.kobjects.parserlib.demos.cli.expressions
-
-import org.kobjects.parserlib.examples.expressions.Context
+package org.kobjects.parserlib.examples.expressions
 
 
 fun main() {

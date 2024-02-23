@@ -1,4 +1,4 @@
-package org.kobjects.parserlib.demos.cli.calculator
+package org.kobjects.parserlib.examples.calculator
 
 import org.kobjects.parserlib.examples.calculator.Calculator
 

@@ -1,4 +1,4 @@
-package org.kobjects.parserlib.demos.cli.basic;
+package org.kobjects.parserlib.examples.basic;
 
 import org.kobjects.parserlib.examples.basic.Interpreter
 
