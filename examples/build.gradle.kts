@@ -2,6 +2,7 @@ plugins {
     kotlin("multiplatform")
     kotlin("native.cocoapods")
     id("convention.publication")
+    application
 }
 
 group = "org.kobjects.parserlib"
