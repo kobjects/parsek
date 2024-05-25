@@ -1,4 +1,4 @@
-# ParseK
+# Parsek
 
 Parser library for Kotlin consisting of a tokenizer and expression parser.
 
