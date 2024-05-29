@@ -61,9 +61,9 @@ publishing {
 
         // Provide artifacts information requited by Maven Central
         pom {
-            name.set("parserlib")
+            name.set("parsek")
             description.set("Kotlin parsing library")
-            url.set("https://github.com/kobjects/parserlib")
+            url.set("https://github.com/kobjects/parsek")
 
             licenses {
                 license {
@@ -79,7 +79,7 @@ publishing {
                 }
             }
             scm {
-                url.set("https://github.com/kobjects/parserlib")
+                url.set("https://github.com/kobjects/parsek")
             }
 
         }

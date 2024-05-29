@@ -5,7 +5,7 @@ plugins {
     application
 }
 
-group = "org.kobjects.parserlib"
+group = "org.kobjects.parsek"
 version = "0.7.4"
 
 kotlin {
@@ -23,7 +23,7 @@ kotlin {
     }
     cocoapods {
         summary = "Kotlin Parsing Library Examples"
-        homepage = "https://github.com/kobjects/parserlib"
+        homepage = "https://github.com/kobjects/parsek"
         ios.deploymentTarget = "14.1"
         framework {
             baseName = "examples"

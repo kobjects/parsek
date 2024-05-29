@@ -6,7 +6,7 @@ pluginManagement {
     }
 }
 
-rootProject.name = "parserlib"
+rootProject.name = "parsek"
 include(":core")
 include(":examples")
 includeBuild("convention-plugins")
