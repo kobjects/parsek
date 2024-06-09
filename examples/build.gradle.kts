@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "org.kobjects.parsek"
-version = "0.7.4"
+version = project.properties["org.kobjects.parsek.version"].toString()
 
 kotlin {
     iosX64()

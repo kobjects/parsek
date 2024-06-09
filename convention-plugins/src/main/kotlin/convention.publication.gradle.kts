@@ -62,7 +62,7 @@ publishing {
         // Provide artifacts information requited by Maven Central
         pom {
             name.set("parsek")
-            description.set("Kotlin parsing library")
+            description.set("Parser library fot Kotlin")
             url.set("https://github.com/kobjects/parsek")
 
             licenses {
