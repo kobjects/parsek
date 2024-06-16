@@ -1,7 +1,8 @@
 # Parsek
 
-Parser library for Kotlin consisting of a tokenizer and expression parser.
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.kobjects.parsek/core/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.kobjects.parsek/core)
 
+Parser library for Kotlin consisting of a tokenizer and expression parser.
 
 ## Tokenization
 

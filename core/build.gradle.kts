@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
+
 plugins {
     kotlin("multiplatform")
     kotlin("native.cocoapods")
@@ -21,6 +23,8 @@ kotlin {
         //  useCommonJs()
         browser()
     }
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmJs()
 
     cocoapods {
         summary = "Kotlin Parser Library"
