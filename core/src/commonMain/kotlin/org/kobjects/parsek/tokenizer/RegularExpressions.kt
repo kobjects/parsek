@@ -7,11 +7,11 @@ object RegularExpressions {
     /** At least one whitespace character */
     val WHITESPACE = Regex("\\s+")
 
-    /** At least one letter, '_' or $, followed by any number of the same or digits. */
+    /** At least one letter or '_', followed by any number of the same or digits. */
     val IDENTIFIER = Regex("[\\p{Alpha}_$][\\p{Alpha}_$\\d]*")
 
     /**
-     * Note that the sign prefix is not included in order to avoid potential problems with
+     * Numbers excluding the sign prefix in order to avoid potential problems with
      * parsing expressions such as "3 - 4"
      */
     val NUMBER = Regex("(\\d+(\\.\\d*)?|\\.\\d+)([eE][+-]?\\d+)?")

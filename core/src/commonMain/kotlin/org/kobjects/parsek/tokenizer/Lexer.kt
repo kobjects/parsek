@@ -4,7 +4,7 @@ package org.kobjects.parsek.tokenizer
  * Splits the input string into tokens, exposed as token iterator. The type parameter indicates
  * the token type; typically an enum consisting of values such as IDENTIFIER, NUMBER etc.
  */
-class Lexer<T>(
+open class Lexer<T>(
     /** The input. */
     private val input: String,
     /**
@@ -16,7 +16,8 @@ class Lexer<T>(
     /**
      * An optional normalization function for the token text.
      */
-    private val normalization: (T, String) -> String = { _, s -> s },
+    private val textNormalization: (T, String) -> String = { _, s -> s },
+    /** An optional start offset for token positions */
     private val offset: Token<T>? = null,
 ): Iterator<Token<T>> {
     private var pos = 0
@@ -57,7 +58,7 @@ class Lexer<T>(
                     // Matches without type are not reported. Useful for whitespace and
                     // potentially comments.
                     val type = candidate.second(text) ?: break
-                    next = Token(startPos, startPos + (offset?.pos ?: 0), startLine, startCol, type, normalization(type, text))
+                    next = Token(startPos, startPos + (offset?.pos ?: 0), startLine, startCol, type, textNormalization(type, text))
                     return true
                 }
             }

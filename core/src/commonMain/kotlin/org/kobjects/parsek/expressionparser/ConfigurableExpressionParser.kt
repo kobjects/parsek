@@ -20,8 +20,8 @@ open class ConfigurableExpressionParser<S : Scanner<*>, C, R> (
     private val infixOrSuffix: Map<String, Symbol<S, C, R>>
 
     init {
-        var prefixBuilder = mutableMapOf<String, Symbol.Unary<S, C, R>>()
-        var infixOrSuffixBuilder = mutableMapOf<String, Symbol<S, C, R>>()
+        val prefixBuilder = mutableMapOf<String, Symbol.Unary<S, C, R>>()
+        val infixOrSuffixBuilder = mutableMapOf<String, Symbol<S, C, R>>()
 
         for (config in configuration) {
             prefixBuilder.putAll(config.prefix)
@@ -96,7 +96,7 @@ open class ConfigurableExpressionParser<S : Scanner<*>, C, R> (
             vararg names: String,
             builder: (S, C, String, R) -> R
         ): Configuration<S, C, R> {
-            var prefix = mutableMapOf<String, Symbol.Unary<S, C, R>>()
+            val prefix = mutableMapOf<String, Symbol.Unary<S, C, R>>()
             for (name in names) {
                 prefix[name] = Symbol.Unary(precedence, builder)
             }

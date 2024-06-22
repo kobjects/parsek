@@ -1,7 +1,7 @@
 package org.kobjects.parsek.examples.pl0.parser
 
 /**
- * "symbols" contanins constants (mapped to an int) and variables (mapped to null)
+ * "symbols" contains constants (mapped to an int) and variables (mapped to null)
  */
 class ParsingContext(
     parentContext: ParsingContext?,
