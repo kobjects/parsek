@@ -1,5 +1,6 @@
 package org.kobjects.parsek.examples.json
 
+/** Parses JSON to Lists, Maps, Doubles, Strings, Booleans and nulls. */
 fun parseJson(jsonString: String): Any? = parseJson(JsonScanner(jsonString))
 
 fun parseJson(jsonScanner: JsonScanner): Any? {
@@ -25,11 +26,12 @@ fun unquote(s: String): String {
             'r' -> '\r'
             't' -> '\t'
             'u' -> {
-                val c = s.substring(i, i + 4).toInt(16)
+                val code = s.substring(i, i + 4).toInt(16)
                 i += 4
-                c
+                code.toChar()
             }
             else -> throw IllegalArgumentException("Unrecognized escape sequence: '\\${s[i - 1]}'")
+
         })
     }
     return sb.toString()
