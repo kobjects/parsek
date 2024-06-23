@@ -23,7 +23,7 @@ class Builtin(val kind: Kind, vararg val param: Evaluable) : Evaluable {
         CHR_("CHR$"),
         COS,
         DIV("/", precedence = 5, parameterCount = 2),
-        EMPTY(""),  // Represents grouping brackts
+        EMPTY(""),  // Represents grouping brackets
         EQ("=", precedence = 3, parameterCount = 2),
         EXP,
         GE(">=", precedence = 3, parameterCount = 2),

@@ -9,7 +9,7 @@ fun main() {
             break
         }
         try {
-            val result = Calculator.eval(expression)
+            val result = Calculator.calculate(expression)
             println("result: $result")
         } catch (e: Exception) {
             println(e.toString())

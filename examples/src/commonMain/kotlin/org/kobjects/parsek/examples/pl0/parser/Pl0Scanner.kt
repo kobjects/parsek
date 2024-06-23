@@ -10,12 +10,7 @@ class Pl0Scanner(input: String) : Scanner<TokenType>(
         RegularExpressions.WHITESPACE to { null },
         Regex("BEGIN|CALL|CONST|DO|END|IF|ODD|PROCEDURE|THEN|VAR|WHILE") to { TokenType.KEYWORD },
         Regex("[0-9]+") to { TokenType.NUMBER },
-        Regex("[a-zA-Z]+") to {
-            when (it) {
-                "BEGIN", "CALL", "CONST", "DO", "END", "IF", "ODD", "PROCEDURE", "THEN", "VAR", "WHILE" -> TokenType.KEYWORD
-                else -> TokenType.IDENT
-            }
-        },
+        Regex("[a-zA-Z]+") to { TokenType.IDENT },
         Regex("<=|>=|=|<|>|#") to { TokenType.COMPARISON },
         Regex("\\(|\\)|:=|;|\\.|!|\\?|\\+|-|\\*|/") to { TokenType.SYMBOL },
     ),

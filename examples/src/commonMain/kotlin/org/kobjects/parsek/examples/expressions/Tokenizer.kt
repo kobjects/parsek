@@ -11,6 +11,5 @@ class Tokenizer(input: String) : Scanner<TokenType>(
         RegularExpressions.NUMBER to { TokenType.NUMBER },
         RegularExpressions.DOUBLE_QUOTED_STRING to { TokenType.STRING },
         RegularExpressions.IDENTIFIER to { TokenType.IDENTIFIER },
-        RegularExpressions.SYMBOL to { TokenType.SYMBOL },
-        ),
+        RegularExpressions.SYMBOL to { TokenType.SYMBOL }),
     TokenType.EOF)

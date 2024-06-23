@@ -7,6 +7,6 @@ class CalculatorTest {
 
     @Test
     fun testSimpleExpressions() {
-        assertEquals(-4.0, Calculator.eval("4-4-4"))
+        assertEquals(-4.0, Calculator.calculate("4-4-4"))
     }
 }

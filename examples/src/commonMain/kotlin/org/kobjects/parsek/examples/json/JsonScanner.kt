@@ -10,7 +10,8 @@ class JsonScanner(
     Lexer(
         input,
     RegularExpressions.WHITESPACE to { null },
-        RegularExpressions.NUMBER to { JsonTokenType.NUMBER },
+        RegularExpressions.JSON_NUMBER to { JsonTokenType.NUMBER },
+        RegularExpressions.JSON_STRING to { JsonTokenType.STRING },
         Regex("true") to { JsonTokenType.TRUE },
         Regex("false") to { JsonTokenType.FALSE },
         Regex("null") to { JsonTokenType.NULL },
@@ -20,6 +21,6 @@ class JsonScanner(
         Regex("\\{") to { JsonTokenType.OBJECT_START },
         Regex("}") to { JsonTokenType.OBJECT_END },
         Regex(":") to { JsonTokenType.COLON },
-        RegularExpressions.DOUBLE_QUOTED_STRING to { JsonTokenType.STRING }),
+    ),
     JsonTokenType.EOF
 )
