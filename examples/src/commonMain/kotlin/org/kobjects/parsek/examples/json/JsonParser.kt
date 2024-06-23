@@ -11,8 +11,28 @@ fun parseJson(jsonScanner: JsonScanner): Any? {
 }
 
 fun unquote(s: String): String {
-    // Need to unescape here, too
-    return s.substring(1, s.length - 1)
+    val sb = StringBuilder()
+    var i = 1
+    while (i < s.length - 1) {
+        val c = s[i++]
+        sb.append(if (c != '\\') c else when (s[i++]) {
+            '\\' -> '\\'
+            '/' -> '/'
+            '"' -> '"'
+            'b' -> '\b'
+            'f' -> '\u000C'
+            'n' -> '\n'
+            'r' -> '\r'
+            't' -> '\t'
+            'u' -> {
+                val c = s.substring(i, i + 4).toInt(16)
+                i += 4
+                c
+            }
+            else -> throw IllegalArgumentException("Unrecognized escape sequence: '\\${s[i - 1]}'")
+        })
+    }
+    return sb.toString()
 }
 
 fun parseValue(jsonScanner: JsonScanner): Any? {
