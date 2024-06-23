@@ -2,31 +2,23 @@ package org.kobjects.parsek.examples.expressions
 
 
 import org.kobjects.parsek.expressionparser.ConfigurableExpressionParser
+import org.kobjects.parsek.tokenizer.Token
 
-/**
- * Tailored towards the BASIC interpreter
- */
-object ExpressionParser : ConfigurableExpressionParser<Tokenizer, Context, Evaluable>(
-    { scanner, context -> ExpressionParser.parsePrimary(scanner, context) },
-    prefix(Builtin.Kind.NEG.precedence, "+") { _, _, _, operand -> operand },
-    prefix(Builtin.Kind.NEG.precedence,  "-") { _, _, _, operand -> Builtin(Builtin.Kind.NEG, operand) },
-    infix(Builtin.Kind.POW.precedence, "^") { _, _, _, left, right ->
-        Builtin(Builtin.Kind.POW, left, right) },
-    infix(Builtin.Kind.MUL.precedence, "*", "/") { _, _, name, left, right ->
-        Builtin(name, left, right) },
-    infix(Builtin.Kind.ADD.precedence, "+", "-") { _, _, name, left, right ->
-        Builtin(name, left, right) },
-    infix(Builtin.Kind.EQ.precedence, "=", "<", "<=", "<>", ">", ">=") { _, _, name, left, right ->
-        Builtin(name, left, right) },
-    infix(Builtin.Kind.AND.precedence, "AND", "And", "and") { _, _, _, left, right ->
-        Builtin(Builtin.Kind.AND, left, right) },
-    infix(Builtin.Kind.OR.precedence, "OR", "Or", "or") { _, _, _, left, right ->
-        Builtin(Builtin.Kind.OR, left, right) },
-    prefix(Builtin.Kind.NOT.precedence, "NOT", "Not", "not") { _, _, _, operand ->
-        Builtin(Builtin.Kind.NOT, operand) }
-
+object ExpressionParser : ConfigurableExpressionParser<Tokenizer, Unit, Node>(
+    { scanner, _ -> ExpressionParser.parsePrimary(scanner) },
+    prefix(8, "+") { _, _, _, operand -> operand },
+    prefix(8,  "-") { _, _, _, operand -> Symbol("neg", operand) },
+    infix(7, "^") { _, _, _, left, right -> Symbol("pow", left, right) },
+    infix(6, "*", "/") { _, _, name, left, right -> Symbol(if (name == "*") "mul" else "div", left, right) },
+    infix(5, "+", "-") { _, _, name, left, right -> Symbol(if (name == "+") "add" else "sub", left, right) },
+    infix(4, "<", "<=", ">", ">=") { _, _, name, left, right ->
+        Symbol((if (name.startsWith("<")) "l" else "g") + (if (name.endsWith("=")) "e" else "t"), left, right) },
+    infix(3, "==", "!=") { _, _, name, left, right -> Symbol(if (name == "==") "eq" else "ne", left, right) },
+    infix(2, "and") { _, _, _, left, right -> Symbol("and", left, right) },
+    infix(1, "or") { _, _, _, left, right -> Symbol("or", left, right) },
+    prefix(0, "not") { _, _, _, operand -> Symbol("not", operand) }
 ) {
-    private fun parsePrimary(tokenizer: Tokenizer, context: Context): Evaluable =
+    private fun parsePrimary(tokenizer: Tokenizer): Node =
         when (tokenizer.current.type) {
             TokenType.NUMBER ->
                 Literal(tokenizer.consume().text.toDouble())
@@ -39,35 +31,28 @@ object ExpressionParser : ConfigurableExpressionParser<Tokenizer, Context, Evalu
             }
             TokenType.IDENTIFIER -> {
                 var name = tokenizer.consume().text
-                if (name.equals("FN", ignoreCase = true) && tokenizer.current.type == TokenType.IDENTIFIER) {
-                    name += " " + tokenizer.consume().text
-                }
-
-                if (tokenizer.tryConsume("(")) {
-                    val params = parseParameterList(tokenizer, context, ")")
-                    context.resolveFunction(name, params)!!
-                } else {
-                    context.resolveVariable(name)
-                }
+                val children = if (tokenizer.tryConsume("(")) parseList(tokenizer, ")") else emptyList()
+                Symbol(name, children)
             }
             TokenType.SYMBOL -> {
                 if (!tokenizer.tryConsume("(")) {
                     throw tokenizer.exception("Unrecognized primary expression.")
                 }
-                val expr = parseExpression(tokenizer, context)
+                val expr = parseExpression(tokenizer, Unit)
                 tokenizer.consume(")")
-                Builtin(Builtin.Kind.EMPTY, expr)
+                expr
             }
             else ->
                 throw tokenizer.exception("Unrecognized primary expression.")
     }
 
+    fun parseExpression(tokenizer: Tokenizer) = parseExpression(tokenizer, Unit)
 
-    fun parseParameterList(tokenizer: Tokenizer, context: Context, endToken: String): List<Evaluable> {
-        val parameters = mutableListOf<Evaluable>()
+    fun parseList(tokenizer: Tokenizer, endToken: String): List<Node> {
+        val parameters = mutableListOf<Node>()
         if (tokenizer.current.text != endToken) {
                 do {
-                    parameters.add(parseExpression(tokenizer, context))
+                    parameters.add(parseExpression(tokenizer, Unit))
                 } while (tokenizer.tryConsume(","))
             }
             tokenizer.consume(endToken)

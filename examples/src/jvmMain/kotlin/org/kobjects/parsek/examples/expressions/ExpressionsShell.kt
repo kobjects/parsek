@@ -4,7 +4,6 @@ package org.kobjects.parsek.examples.expressions
 fun main() {
     println("Parsek \"Expressions\" demo. Exit by entering a blank line.")
     println()
-    val context = Context()
     while (true) {
         print("expression? ")
         val expression = readln()
@@ -12,7 +11,7 @@ fun main() {
             break
         }
         try {
-            val result = context.eval(expression)
+            val result = ExpressionParser.parseExpression(Tokenizer(expression))
             println("result: $result")
         } catch (e: Exception) {
             println(e)

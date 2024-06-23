@@ -1,10 +1,12 @@
 package org.kobjects.parsek.examples.expressions
 
-class Literal(val value: Any) : Evaluable {
+class Literal(val value: Any) : Node {
 
-    override fun eval(ctx: Context) = value
+    override val name: String
+        get() = if (value is String) "\"" + value.replace("\"", "\"\"") + "\""
+                else value.toString()
 
-    override fun toString() =
-        if (value is String) "\"" + value.replace("\"", "\"\"") + "\""
-        else value.toString()
+    override fun eval(ctx: RuntimeContext) = value
+
+    override fun toString() = name
 }
