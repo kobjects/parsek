@@ -2,9 +2,10 @@ package org.kobjects.parsek.examples.expressions
 
 
 import org.kobjects.parsek.expressionparser.ConfigurableExpressionParser
-import org.kobjects.parsek.tokenizer.Token
+import org.kobjects.parsek.tokenizer.Scanner
 
-object ExpressionParser : ConfigurableExpressionParser<Tokenizer, Unit, Node>(
+
+object ExpressionParser : ConfigurableExpressionParser<Scanner<TokenType>, Unit, Evaluable>(
     { scanner, _ -> ExpressionParser.parsePrimary(scanner) },
     prefix(8, "+") { _, _, _, operand -> operand },
     prefix(8,  "-") { _, _, _, operand -> Symbol("neg", operand) },
@@ -18,7 +19,7 @@ object ExpressionParser : ConfigurableExpressionParser<Tokenizer, Unit, Node>(
     infix(1, "or") { _, _, _, left, right -> Symbol("or", left, right) },
     prefix(0, "not") { _, _, _, operand -> Symbol("not", operand) }
 ) {
-    private fun parsePrimary(tokenizer: Tokenizer): Node =
+    private fun parsePrimary(tokenizer: Scanner<TokenType>): Evaluable =
         when (tokenizer.current.type) {
             TokenType.NUMBER ->
                 Literal(tokenizer.consume().text.toDouble())
@@ -46,16 +47,18 @@ object ExpressionParser : ConfigurableExpressionParser<Tokenizer, Unit, Node>(
                 throw tokenizer.exception("Unrecognized primary expression.")
     }
 
-    fun parseExpression(tokenizer: Tokenizer) = parseExpression(tokenizer, Unit)
+    fun parseExpression(tokenizer: Scanner<TokenType>) = parseExpression(tokenizer, Unit)
 
-    fun parseList(tokenizer: Tokenizer, endToken: String): List<Node> {
-        val parameters = mutableListOf<Node>()
+    fun parseList(tokenizer: Scanner<TokenType>, endToken: String): List<Evaluable> {
+        val parameters = mutableListOf<Evaluable>()
         if (tokenizer.current.text != endToken) {
                 do {
                     parameters.add(parseExpression(tokenizer, Unit))
                 } while (tokenizer.tryConsume(","))
             }
             tokenizer.consume(endToken)
-        return parameters
+        return parameters.toList()
     }
+
+    fun eval(expression: String) = parseExpression(ExpressionScanner(expression)).eval(RootContext)
 }

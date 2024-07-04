@@ -4,28 +4,49 @@ package org.kobjects.parsek.tokenizer
  * A set of regular expressions that might be useful for parsing.
  */
 object RegularExpressions {
+    /** A newline including horizontal whitespace that follows, */
+    val NEWLINE = Regex("""\n[ \t]*""")
+
     /** At least one whitespace character */
-    val WHITESPACE = Regex("\\s+")
+    val WHITESPACE = Regex("""\s+""")
 
-    /** At least one letter or '_', followed by any number of the same or digits. */
-    val IDENTIFIER = Regex("[\\p{Alpha}_$][\\p{Alpha}_$\\d]*")
+    val HORIZONTAL_WHITESPACE = Regex("""[ \t]+""")
 
-    val JSON_STRING = Regex("\"(((?=\\\\)\\\\([\"\\\\\\/bfnrt]|u[0-9a-fA-F]{4}))|[^\"\\\\\\x00-\\x1F\\x7F]+)*\"")
+    /** At least one letter, '_' or '$', followed by any number of the same or digits. */
+    val IDENTIFIER = Regex("""[\p{Alpha}_$][\p{Alpha}_$\d]*""")
 
-    val JSON_NUMBER = Regex("-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?")
     /**
      * Numbers excluding the sign prefix in order to avoid potential problems with
      * parsing expressions such as "3 - 4"
      */
-    val NUMBER = Regex("(\\d+(\\.\\d*)?|\\.\\d+)([eE][+-]?\\d+)?")
+    val NUMBER = Regex("""(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?""")
 
-    /** Double-quoted strings.  */
-    val DOUBLE_QUOTED_STRING = Regex("\"([^\"\\\\]*(\\\\.[^\"\\\\]*)*)\"")
+    /**
+     * Signed Numbers matching the JSON specification
+     */
+    val JSON_NUMBER = Regex("""-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?""")
 
-    /** Single-quoted strings. */
-    val SINGLE_QUOTED_STRING = Regex("'([^'\\\\]*(\\\\.[^'\\\\]*)*)'")
+    /**
+     * Regex for recognizing double-quoted strings, including quotes escaped using a backslash. Additional forms
+     * of character escapes can be recognized (or rejected) in post-processing.
+     */
+    val DOUBLE_QUOTED_STRING = Regex(""""([^"\\]*(\\.[^"\\]*)*)"""")
 
-    /** All kinds of symbols */
+    /**
+     * Regex for recognizing single-quoted strings, including quotes escaped using a backslash. Additional forms
+     * of character escapes can be recognized (or rejected) in post-processing.
+     */
+    val SINGLE_QUOTED_STRING = Regex("""'([^"\\]*(\\.[^'\\]*)*)'""")
+
+    /**
+     * Recognizes double-quoted strings using doubled double-quotes as escape for double-quotes, as used in the CSV
+     * format and BASIC interpreters.
+     */
+    val CSV_STRING = Regex(""""([^"]*(""[^"]*)*)"""")
+
+    /**
+     * All kinds of symbols, including composites used in various programming languages. This might be a good
+     * starting point, but should probably be replaced with a custom regex. */
     // Escaping "}" seems to be required for Android.
-    val SYMBOL = Regex("\\+|-|\\*|%|<=|>=|==|=|<>|<|>|\\^|!=|!|\\(|\\)|,|\\?|;|~|\\[|]|\\{|\\}|/")
+    val SYMBOL = Regex("""\+\+|\+|--|-|\*\*|\*|%|<=|>=|==|=|<>|<|>|&&|&|\|\||\||\^|!=|!|\(|\)|,|\?|;|:|~|\[|]|\{|\}|/""")
 }

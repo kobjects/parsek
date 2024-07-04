@@ -11,7 +11,7 @@ class JsonScanner(
         input,
     RegularExpressions.WHITESPACE to { null },
         RegularExpressions.JSON_NUMBER to { JsonTokenType.NUMBER },
-        RegularExpressions.JSON_STRING to { JsonTokenType.STRING },
+        RegularExpressions.DOUBLE_QUOTED_STRING to { JsonTokenType.STRING },
         Regex("true") to { JsonTokenType.TRUE },
         Regex("false") to { JsonTokenType.FALSE },
         Regex("null") to { JsonTokenType.NULL },

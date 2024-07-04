@@ -1,5 +1,10 @@
 package org.kobjects.parsek.examples.expressions
 
 enum class TokenType {
-    IDENTIFIER, NUMBER, SYMBOL, STRING, EOF,
+    NEWLINE, // Included for Mython
+    IDENTIFIER,
+    NUMBER,
+    SYMBOL,
+    STRING,
+    EOF,
 }

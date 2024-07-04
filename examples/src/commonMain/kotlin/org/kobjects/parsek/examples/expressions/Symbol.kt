@@ -2,10 +2,10 @@ package org.kobjects.parsek.examples.expressions
 
 
 class Symbol(
-    override val name: String,
-    override val children: List<Node>
-) : Node {
-    constructor(name: String, vararg children: Node) : this(name, children.toList())
-
-    override fun eval(context: RuntimeContext): Any = context.evalSymbol(name, children)
+    val name: String,
+    val children: List<Evaluable>
+) : Evaluable {
+    constructor(name: String, vararg children: Evaluable) : this(name, children.toList())
+    override fun eval(context: RuntimeContext): Any = context.evalSymbol(name, children, context)
+    override fun toString(): String = if (children.isEmpty()) name else "$name(${children.joinToString(", ")})"
 }

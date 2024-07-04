@@ -73,7 +73,11 @@ open class Scanner<T>(
     }
 
     fun requireEof(message: () -> String = { "EOF expected." }) {
-        if (!eof) throw exception(message())
+        require(eof, message)
+    }
+
+    fun require(condition: Boolean, message: () -> String) {
+        if (!condition) throw exception(message())
     }
 
     /**
@@ -102,4 +106,6 @@ open class Scanner<T>(
         }
         return buffer[index]
     }
+
+    override fun toString() = currentMaterialized.toString()
 }

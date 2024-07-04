@@ -72,12 +72,13 @@ The expression parser operates on a tokenizer, is stateless and should be shared
 - parsing by checking for an opening brace after the primary expression.
 - "Grouping" brackets should be implemented where primary expressions are processed, too. 
 
-Again, simple usage examples can be found in the [tests](https://github.com/kobjects/parsek/blob/main/core/src/commonTest/kotlin/org/kobjects/parsek/expressionparser/ParserTest.kt)
 
-## Examples
+### Expression Parser Examples
 
-### PL/0
+ - A simple example evaluating mathematical expressions directly (opposed to building an explicit parse tree) can be 
+   found in the [tests](https://github.com/kobjects/parsek/blob/main/core/src/commonTest/kotlin/org/kobjects/parsek/expressionparser/ParserTest.kt)
 
-A complete [PL/0](https://en.wikipedia.org/wiki/PL/0) parser is included in the examples module to 
+
+ - PL/0: A complete [PL/0](https://en.wikipedia.org/wiki/PL/0) parser is included in the examples module to 
 [illustrate how to use the expression parser and tokenizer](https://github.com/kobjects/parsek/blob/main/examples/src/commonMain/kotlin/org/kobjects/parsek/examples/pl0/Parser.kt) 
 for a simple but fully working and computational complete language.

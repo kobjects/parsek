@@ -5,13 +5,13 @@ import kotlin.math.pow
 object RootContext : RuntimeContext {
 
 
-    override fun evalSymbol(name: String, children: List<Node>): Any =
+    override fun evalSymbol(name: String, children: List<Evaluable>, parameterContext: RuntimeContext): Any =
         when (name) {
-            "add" -> children.fold(0.0) { acc, current -> acc + current.evalDouble(this) }
-            "mul" -> children.fold(1.0) { acc, current -> acc * current.evalDouble(this) }
-            "div" -> numeric2(children) { a, b -> a / b }
-            "sub" -> numeric2(children) { a, b -> a - b }
-            "pow" -> numeric2(children) { a, b -> a.pow(b) }
+            "add" -> children.fold(0.0) { acc, current -> acc + current.evalDouble(parameterContext) }
+            "mul" -> children.fold(1.0) { acc, current -> acc * current.evalDouble(parameterContext) }
+            "div" -> parameterContext.numeric2(children) { a, b -> a / b }
+            "sub" -> parameterContext.numeric2(children) { a, b -> a - b }
+            "pow" -> parameterContext.numeric2(children) { a, b -> a.pow(b) }
             else -> throw IllegalStateException("Unrecognized symbol: $name")
         }
 }
