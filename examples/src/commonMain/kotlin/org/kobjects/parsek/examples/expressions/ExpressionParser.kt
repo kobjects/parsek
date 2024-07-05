@@ -7,17 +7,15 @@ import org.kobjects.parsek.tokenizer.Scanner
 
 object ExpressionParser : ConfigurableExpressionParser<Scanner<TokenType>, Unit, Evaluable>(
     { scanner, _ -> ExpressionParser.parsePrimary(scanner) },
-    prefix(8, "+") { _, _, _, operand -> operand },
-    prefix(8,  "-") { _, _, _, operand -> Symbol("neg", operand) },
-    infix(7, "^") { _, _, _, left, right -> Symbol("pow", left, right) },
-    infix(6, "*", "/") { _, _, name, left, right -> Symbol(if (name == "*") "mul" else "div", left, right) },
-    infix(5, "+", "-") { _, _, name, left, right -> Symbol(if (name == "+") "add" else "sub", left, right) },
-    infix(4, "<", "<=", ">", ">=") { _, _, name, left, right ->
-        Symbol((if (name.startsWith("<")) "l" else "g") + (if (name.endsWith("=")) "e" else "t"), left, right) },
-    infix(3, "==", "!=") { _, _, name, left, right -> Symbol(if (name == "==") "eq" else "ne", left, right) },
-    infix(2, "and") { _, _, _, left, right -> Symbol("and", left, right) },
-    infix(1, "or") { _, _, _, left, right -> Symbol("or", left, right) },
-    prefix(0, "not") { _, _, _, operand -> Symbol("not", operand) }
+    prefix(9, "+", "-") { _, _, name, operand -> Symbol(name, 9, operand) },
+    infix(8, "**") { _, _, _, left, right -> Symbol("**", 8, left, right) },
+    infix(7, "*", "/", "%", "//") { _, _, name, left, right -> Symbol(name, 7, left, right) },
+    infix(6, "+", "-") { _, _, name, left, right -> Symbol(name, 6, left, right) },
+    infix(5, "<", "<=", ">", ">=") { _, _, name, left, right -> Symbol(name, 5, left, right) },
+    infix(4, "==", "!=") { _, _, name, left, right -> Symbol(name, 4, left, right) },
+    infix(3, "and") { _, _, _, left, right -> Symbol("and", 3, left, right) },
+    infix(2, "or") { _, _, _, left, right -> Symbol("or", 2, left, right) },
+    prefix(1, "not") { _, _, _, operand -> Symbol("not", 1, operand) }
 ) {
     private fun parsePrimary(tokenizer: Scanner<TokenType>): Evaluable =
         when (tokenizer.current.type) {

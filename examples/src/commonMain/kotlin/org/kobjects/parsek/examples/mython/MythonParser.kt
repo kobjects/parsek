@@ -3,6 +3,7 @@ package org.kobjects.parsek.examples.mython
 import org.kobjects.parsek.examples.expressions.Evaluable
 import org.kobjects.parsek.examples.expressions.ExpressionParser
 import org.kobjects.parsek.examples.expressions.ExpressionScanner
+import org.kobjects.parsek.examples.expressions.Literal
 import org.kobjects.parsek.examples.expressions.Symbol
 import org.kobjects.parsek.examples.expressions.TokenType
 
@@ -40,7 +41,7 @@ class MythonParser private constructor(val scanner: ExpressionScanner) {
 
     fun parserDef() {
         scanner.consume("def")
-        val name = scanner.consume(TokenType.IDENTIFIER) { "Identifier expected after 'def'."}.text
+        val name = scanner.consume(TokenType.IDENTIFIER) { "Identifier expected after 'def'." }.text
         scanner.consume("(") { "Opening brace expected after function name '$name'." }
         val parameters = mutableListOf<String>()
         if (!scanner.tryConsume(")")) {
@@ -63,7 +64,11 @@ class MythonParser private constructor(val scanner: ExpressionScanner) {
         scanner.consume(TokenType.NEWLINE)
         val result = mutableListOf<Evaluable>()
         while(true) {
-            result.add(parseStatement(depth))
+            if (scanner.current.type != TokenType.NEWLINE) {
+                val statement = parseStatement(depth)
+                println("parsed: $statement")
+                result.add(statement)
+            }
             if (currentIndent() != depth) {
                 break
             }
@@ -73,15 +78,41 @@ class MythonParser private constructor(val scanner: ExpressionScanner) {
     }
 
     fun parseStatement(depth: Int): Evaluable =
-        if (scanner.tryConsume("if")) parseIf(depth)
+        if (scanner.tryConsume("for")) parseFor(depth)
+        else if (scanner.tryConsume("if")) parseIf(depth)
         else if (scanner.tryConsume("while")) parseWhile(depth)
-        else  ExpressionParser.parseExpression(scanner)
+        else {
+            val expr = ExpressionParser.parseExpression(scanner)
+            if (scanner.tryConsume("=")) Symbol("set", expr, parseExpression()) else expr
+        }
+
+    fun parseFor(depth: Int): Evaluable {
+        val varName = scanner.consume(TokenType.IDENTIFIER) { "Variable name expected." }.text
+        scanner.consume("in") { "'in' expected after for loop variable."}
+        val expr = parseExpression()
+        scanner.consume(":") { "':' expected after for loop expression." }
+        val body = parseBody(depth)
+        return Symbol("for", Literal(varName), expr, body)
+    }
 
     fun parseIf(depth: Int): Evaluable {
-        val condition = ExpressionParser.parseExpression(scanner)
+        val params = mutableListOf(ExpressionParser.parseExpression(scanner))
         scanner.consume(":")
-        val body = parseBody(depth)
-        return Symbol("if", condition, body)
+        params.add(parseBody(depth))
+        while (currentIndent() == depth && scanner.lookAhead(1).text == "elif") {
+            scanner.consume()
+            scanner.consume("elif")
+            params.add(parseExpression())
+            scanner.consume(":")
+            params.add(parseBody(depth))
+        }
+        if (currentIndent() == depth && scanner.lookAhead(1).text == "else") {
+            scanner.consume()
+            scanner.consume("else")
+            scanner.consume(":")
+            params.add(parseBody(depth))
+        }
+        return Symbol("if", params.toList())
     }
 
     fun parseWhile(depth: Int): Evaluable {

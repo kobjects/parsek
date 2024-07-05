@@ -10,6 +10,6 @@ class ExpressionsTest {
 
         assertEquals(-4.0, ExpressionParser.eval("4-4-4"))
         // assertEquals("Hello", ctx.eval("left(\"HelloWorld\", 5)"))
-        assertEquals(4.0, ExpressionParser.eval("2^2"))
+        assertEquals(4.0, ExpressionParser.eval("2**2"))
     }
 }
