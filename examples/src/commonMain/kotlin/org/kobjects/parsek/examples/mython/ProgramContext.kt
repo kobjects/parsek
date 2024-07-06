@@ -31,8 +31,8 @@ class ProgramContext(
                 else -> throw IllegalArgumentException("2 or 3 parameter expected for range, but got ${children.size}")
             }.map { it.toDouble() }
             "seq" -> children.fold(Unit) { _, current -> current.eval(parameterContext) }
-            "set" -> {
-                require(children.size == 2) { "Two parameters expected for 'set'"}
+            "=" -> {
+                require(children.size == 2) { "Two parameters expected for assignment"}
                 val target = (children.first() as Literal).value as String
                 (parameterContext as LocalContext).symbols[target] = children.last().eval(parameterContext)
             }

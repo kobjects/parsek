@@ -25,7 +25,7 @@ object ExpressionParser : ConfigurableExpressionParser<Scanner<TokenType>, Unit,
                 val text = tokenizer.consume().text
                 Literal(
                     text.substring(1, text.length - 1)
-                        .replace("\"\"", "\"")
+                        .replace("\\n", "\n")
                 )
             }
             TokenType.IDENTIFIER -> {
@@ -58,5 +58,6 @@ object ExpressionParser : ConfigurableExpressionParser<Scanner<TokenType>, Unit,
         return parameters.toList()
     }
 
-    fun eval(expression: String) = parseExpression(ExpressionScanner(expression)).eval(RootContext)
+    fun eval(expression: String) = parseExpression(
+        Scanner(ExpressionLexer(expression), TokenType.EOF)).eval(RootContext)
 }

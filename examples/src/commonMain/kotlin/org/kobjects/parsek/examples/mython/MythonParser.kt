@@ -2,12 +2,13 @@ package org.kobjects.parsek.examples.mython
 
 import org.kobjects.parsek.examples.expressions.Evaluable
 import org.kobjects.parsek.examples.expressions.ExpressionParser
-import org.kobjects.parsek.examples.expressions.ExpressionScanner
+import org.kobjects.parsek.examples.expressions.ExpressionLexer
 import org.kobjects.parsek.examples.expressions.Literal
 import org.kobjects.parsek.examples.expressions.Symbol
 import org.kobjects.parsek.examples.expressions.TokenType
+import org.kobjects.parsek.tokenizer.Scanner
 
-class MythonParser private constructor(val scanner: ExpressionScanner) {
+class MythonParser private constructor(val scanner: Scanner<TokenType>) {
     val functions = mutableMapOf<String, Lambda>()
 
     private fun parseExpression(): Evaluable = ExpressionParser.parseExpression(scanner)
@@ -83,7 +84,7 @@ class MythonParser private constructor(val scanner: ExpressionScanner) {
         else if (scanner.tryConsume("while")) parseWhile(depth)
         else {
             val expr = ExpressionParser.parseExpression(scanner)
-            if (scanner.tryConsume("=")) Symbol("set", expr, parseExpression()) else expr
+            if (scanner.tryConsume("=")) Symbol("=", expr, parseExpression()) else expr
         }
 
     fun parseFor(depth: Int): Evaluable {
@@ -126,6 +127,6 @@ class MythonParser private constructor(val scanner: ExpressionScanner) {
     companion object {
 
         fun parseProgram(code: String) =
-            MythonParser(ExpressionScanner(code)).parseProgram()
+            MythonParser(Scanner(NewlineFilter(ExpressionLexer(code)), TokenType.EOF)).parseProgram()
     }
 }

@@ -11,7 +11,7 @@ fun main() {
             break
         }
         try {
-            val result = ExpressionParser.parseExpression(ExpressionScanner(expression))
+            val result = ExpressionParser.eval(expression)
             println("result: $result")
         } catch (e: Exception) {
             println(e)

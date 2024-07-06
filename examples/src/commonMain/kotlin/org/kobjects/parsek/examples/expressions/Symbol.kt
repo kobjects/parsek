@@ -20,9 +20,18 @@ class Symbol(
                 stringBuilder.append(")")
             } else {
                 when (children.size) {
-                    0 -> throw IllegalStateException()
-                    1 -> stringBuilder.append(name).append(children.first().toString())
-                    else -> stringBuilder.append(children.joinToString(" $name "))
+                    0 -> stringBuilder.append("'$name'")
+                    1 -> {
+                        stringBuilder.append(name)
+                        children.first().stringify(stringBuilder, precedence)
+                    }
+                    else -> {
+                        children.first().stringify(stringBuilder, precedence)
+                        for (child in children.subList(1, children.size)) {
+                            stringBuilder.append(" $name ")
+                            child.stringify(stringBuilder, precedence)
+                        }
+                    }
                 }
             }
         } else {

@@ -18,13 +18,13 @@ def main():
      if x % 3 == 0: 
        print("Fizz")
        if x % 5 == 0:
-         print("Buzz")
+         print(
+            "Buzz")
      elif x % 5 == 0:
        print("Buzz")
      else:
        print(x)
-     print("\n")  
-     
+     print("\n")    
 """
 
     @Test
@@ -44,6 +44,6 @@ def main():
             result.append(it)
         }
 
-        assertTrue(result.startsWith("0.0\n1.0\n2.0\nfizz"), "Unexpected result $result")
+        assertTrue(result.startsWith("1.0\n2.0\nFizz"), "Unexpected result $result")
     }
 }
