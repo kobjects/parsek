@@ -1,5 +1,8 @@
 package org.kobjects.parsek.tokenizer
 
+/**
+ * Exception type for parsing errors containing a reference to the current token.
+ */
 class ParsingException(
     val token: Token<*>,
     message: String?,

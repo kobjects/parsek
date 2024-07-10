@@ -4,11 +4,24 @@ plugins {
     kotlin("multiplatform")
     kotlin("native.cocoapods")
     id("convention.publication")
+    id("org.jetbrains.dokka") version "1.9.20"
 }
 
 // CocoaPods requires the podspec to have a version.
 group = "org.kobjects.parsek"
 version = project.properties["org.kobjects.parsek.version"].toString()
+
+
+
+tasks.dokkaHtml {
+    moduleName.set("Parsek")
+    outputDirectory.set(layout.buildDirectory.dir("dokka"))
+    dokkaSourceSets {
+        configureEach {
+            includes.from("module.md")
+        }
+    }
+}
 
 kotlin {
     iosX64()
