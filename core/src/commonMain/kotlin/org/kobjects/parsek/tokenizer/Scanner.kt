@@ -9,6 +9,11 @@ open class Scanner<T>(
     val eofType: T,
     val eofText: String = ""
 )  {
+    constructor(input: String, eofType: T, vararg  types: Pair<Regex, T?>) : this(
+        Lexer(input, *types.map { p -> Pair<Regex, (String) -> T?>(p.first, { _ -> p.second }) }.toTypedArray()),
+        eofType
+    )
+
     private val buffer = mutableListOf<Token<T>>()
 
     // The last token encountered so far. Used to determine the position of the end of the file.

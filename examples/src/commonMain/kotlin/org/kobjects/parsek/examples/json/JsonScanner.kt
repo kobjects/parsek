@@ -7,20 +7,18 @@ import org.kobjects.parsek.tokenizer.Scanner
 class JsonScanner(
     input: String
 ) : Scanner<JsonTokenType>(
-    Lexer(
-        input,
-    RegularExpressions.WHITESPACE to { null },
-        RegularExpressions.JSON_NUMBER to { JsonTokenType.NUMBER },
-        RegularExpressions.DOUBLE_QUOTED_STRING to { JsonTokenType.STRING },
-        Regex("true") to { JsonTokenType.TRUE },
-        Regex("false") to { JsonTokenType.FALSE },
-        Regex("null") to { JsonTokenType.NULL },
-        Regex(",") to { JsonTokenType.COMMA },
-        Regex("\\[") to { JsonTokenType.ARRAY_START },
-        Regex("]") to { JsonTokenType.ARRAY_END },
-        Regex("\\{") to { JsonTokenType.OBJECT_START },
-        Regex("}") to { JsonTokenType.OBJECT_END },
-        Regex(":") to { JsonTokenType.COLON },
-    ),
-    JsonTokenType.EOF
+    input,
+    JsonTokenType.EOF,
+    RegularExpressions.WHITESPACE to null,
+    RegularExpressions.JSON_NUMBER to JsonTokenType.NUMBER,
+    RegularExpressions.DOUBLE_QUOTED_STRING to JsonTokenType.STRING,
+    Regex.fromLiteral("true") to JsonTokenType.TRUE,
+    Regex.fromLiteral("false") to JsonTokenType.FALSE,
+    Regex.fromLiteral("null") to JsonTokenType.NULL,
+    Regex.fromLiteral(",") to JsonTokenType.COMMA,
+    Regex.fromLiteral("[") to JsonTokenType.ARRAY_START,
+    Regex.fromLiteral("]") to JsonTokenType.ARRAY_END,
+    Regex.fromLiteral("{") to JsonTokenType.OBJECT_START,
+    Regex.fromLiteral("}") to JsonTokenType.OBJECT_END ,
+    Regex.fromLiteral(":") to JsonTokenType.COLON
 )
