@@ -86,6 +86,12 @@ publishing {
     }
 }
 
+// Hack for / from https://github.com/gradle/gradle/issues/26091
+val signingTasks = tasks.withType<Sign>()
+tasks.withType<AbstractPublishToMaven>().configureEach {
+    dependsOn(signingTasks)
+}
+
 // Signing artifacts. Signing.* extra properties values will be used
 
 signing {
