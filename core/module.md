@@ -1,7 +1,10 @@
+# Package org.kobjects.parsek.expression
+
+Contains the Pratt parser.
+
 # Package org.kobjects.parsek.expressionparser
 
-Contains the configurable expression parser. 
-
+Contains the previous version of the expression parser. 
 
 # Package org.kobjects.parsek.tokenizer
 
