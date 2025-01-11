@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
     spec.name                     = 'examples'
-    spec.version                  = '0.8.1'
+    spec.version                  = '0.9.0'
     spec.homepage                 = 'https://github.com/kobjects/parsek'
     spec.source                   = { :http=> ''}
     spec.authors                  = ''

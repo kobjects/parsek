@@ -91,7 +91,7 @@ operates on a tokenizer, is stateless and should be shared / reused.
  - A complete [PL/0](https://en.wikipedia.org/wiki/PL/0) parser is included in the examples module to illustrate 
    how to use the expression parser and tokenizer for a simple but computational complete language: 
    [Parser.kt](https://github.com/kobjects/parsek/blob/main/examples/src/commonMain/kotlin/org/kobjects/parsek/examples/pl0/parser/Parser.kt),
-   [Pl0Ttest.kt](https://github.com/kobjects/parsek/blob/main/examples/src/commonTest/kotlin/org/kobjects/parsek/examples/pl0/Pl0Test.kt)
+   [Pl0Test.kt](https://github.com/kobjects/parsek/blob/main/examples/src/commonTest/kotlin/org/kobjects/parsek/examples/pl0/Pl0Test.kt)
 
 - A parser for mathematical expressions: [ExpressionParser.kt](https://github.com/kobjects/parsek/blob/main/examples/src/commonMain/kotlin/org/kobjects/parsek/examples/expressions/ExpressionParser.kt), 
   [ExpressionsTest.kt](https://github.com/kobjects/parsek/blob/main/examples/src/commonTest/kotlin/org/kobjects/parsek/examples/expressions/ExpressionsTest.kt)
