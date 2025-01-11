@@ -6,16 +6,18 @@ import org.kobjects.parsek.examples.pl0.node.condition.Odd
 import org.kobjects.parsek.examples.pl0.node.condition.RelationalOperation
 import org.kobjects.parsek.examples.pl0.node.expression.*
 import org.kobjects.parsek.examples.pl0.node.statement.*
-import org.kobjects.parsek.expressionparser.ConfigurableExpressionParser
+import org.kobjects.parsek.expression.Operator
+import org.kobjects.parsek.expression.PrattParser
 
 // expression = [ "+"|"-"] term { ("+"|"-") term};
 // term = factor {("*"|"/") factor};
-object Pl0Parser : ConfigurableExpressionParser<Pl0Scanner, ParsingContext, Expression>(
-  { scanner, context -> Pl0Parser.parseFactor(scanner, context) },
-  prefix(0, "+") { _, _, _, operand -> operand },
-  prefix(0, "-") { _, _, _, operand -> Negate(operand) },
-  infix(1, "*", "/") { _, _, name, left, right -> BinaryOperation(name, left, right) },
-  infix(2, "+", "-") { _, _, name, left, right -> BinaryOperation(name, left, right) },
+object Pl0Parser : PrattParser<Pl0Scanner, ParsingContext, Expression>(
+    { scanner, context -> Pl0Parser.parseFactor(scanner, context) },
+    { _, _, name, operand -> if (name == "-") Negate(operand) else operand },
+    { _, _, name, left, right -> BinaryOperation(name, left, right) },
+    Operator.Prefix(0, "+", "-"),
+    Operator.Infix(1, "*", "/"),
+    Operator.Infix(2, "+", "-")
 ) {
 
     fun parseProgram(text: String): Program =
