@@ -37,10 +37,10 @@ class ParserTest {
     ) {
         private val lexer = Lexer(
             TokenType.EOF,
-            RegularExpressions.WHITESPACE to { null },
-            RegularExpressions.SYMBOL to { TokenType.SYMBOL },
-            RegularExpressions.IDENTIFIER to { TokenType.IDENTIFIER },
-            RegularExpressions.UNSIGNED_NUMBER to { TokenType.NUMBER },
+            RegularExpressions.WHITESPACE to null,
+            RegularExpressions.SYMBOL to TokenType.SYMBOL,
+            RegularExpressions.IDENTIFIER to TokenType.IDENTIFIER,
+            RegularExpressions.UNSIGNED_NUMBER to TokenType.NUMBER,
         )
 
         fun parseTernary(scanner: Scanner<TokenType>, condition: Double): Double {

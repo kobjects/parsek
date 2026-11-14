@@ -4,6 +4,7 @@ package org.kobjects.parsek.tokenizer
  * A Filter for the lexer, useful for filtering (e.g.) insignificant newlines. The accept function
  * is not just a parameter but needs to be overridden in a subclass as it's expected to be stateful.
  */
+@Deprecated("Use Lexer.tokenize(...).asSequence().filter { ... }.iterator() instead.")
 abstract class Filter<T>(val filtered: Iterator<Token<T>>) : Iterator<Token<T>> {
     private var accepted: Token<T>? = null
 

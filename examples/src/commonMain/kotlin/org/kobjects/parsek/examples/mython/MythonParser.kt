@@ -7,6 +7,7 @@ import org.kobjects.parsek.examples.expressions.Literal
 import org.kobjects.parsek.examples.expressions.Symbol
 import org.kobjects.parsek.examples.expressions.TokenType
 import org.kobjects.parsek.tokenizer.Scanner
+import kotlin.math.max
 
 class MythonParser private constructor(val scanner: Scanner<TokenType>) {
     val functions = mutableMapOf<String, Lambda>()
@@ -125,7 +126,16 @@ class MythonParser private constructor(val scanner: Scanner<TokenType>) {
 
     companion object {
 
-        fun parseProgram(code: String) =
-            MythonParser(ExpressionLexer.scanner(code) { NewlineFilter(it) }).parseProgram()
+        fun parseProgram(code: String): Program {
+            var bracketDepth = 0
+            val tokens = ExpressionLexer.tokenize(code).asSequence().filter { token ->
+                when (token.text) {
+                    "{", "[", "(" -> bracketDepth++
+                    "}", "]", ")" -> bracketDepth = max(0, bracketDepth - 1)
+                }
+                bracketDepth == 0 || token.type != TokenType.NEWLINE
+            }
+            return MythonParser(Scanner(tokens.iterator(), TokenType.EOF)).parseProgram()
+        }
     }
 }

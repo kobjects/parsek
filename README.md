@@ -18,14 +18,18 @@ The lexer ([source](https://github.com/kobjects/parsek/blob/main/core/src/common
 regex-based tokenizer definition (typically declared once as an `object` or `val`). It exposes `tokenize(input)` 
 to produce a lazy `Iterator<Token<T>>`, and `scanner(input)` to create a `Scanner<T>` directly.
 
-Regular expressions are mapped to token types using a function which
-typically just returns a fixed token type inline. The function can be used to implement a second
-layer of mapping, but this should be fairly uncommon. Input mapped to null (typically whitespace) 
+Regular expressions are mapped directly to token types (e.g. `RegularExpressions.IDENTIFIER to TokenType.IDENTIFIER`).
+Multiple regular expressions may map to the same token type, and rules mapped to `null` (typically whitespace)
 will not be reported.
+
+If you pass a non-null `eofType` (e.g. `TokenType.EOF`), `Token.type` stays non-nullable. To avoid adding an `EOF`
+entry to an enum, pass `null` as `eofType` with a nullable type parameter (`Lexer<TokenType?>(null, ...)`), or
+use `Lexer<Unit?>(null, ...)` (mapping emitted tokens to `Unit`) when you don't need token types at all.
 
 The reason for the Lexer/Scanner split is to separate "raw" tokenization from providing a nice and convenient 
 parser API. Exposing a raw `Iterator<Token<T>>` allows installing additional processing between `tokenize` and 
-`Scanner` (for instance via `lexer.scanner(input) { NewlineFilter(it) }` for context-sensitive newline filtering).
+`Scanner` (for instance via `Scanner(lexer.tokenize(input).asSequence().filter { ... }.iterator(), ...)` for 
+context-sensitive newline filtering).
 
 
 ### Token
@@ -104,9 +108,10 @@ operates on a scanner, is stateless and should be shared / reused.
 ## Version History
 
 ### 0.20.0 (2026-11-14)
-- Refactored `Lexer` into a reusable factory exposing `tokenize(...)` and `scanner(...)`.
-- Deprecated the `Scanner` inline-regex constructor (define a reusable `Lexer` instead).
-- Renamed `RegularExpressions.NUMBER` to `UNSIGNED_NUMBER` (with `NUMBER` deprecated for one release).
+- Refactored `Lexer` into a reusable factory exposing `tokenize(...)` and `scanner(...)`, mapping `Pair<Regex, T?>` directly (removing the mapping lambda, `textNormalization`, and `eofText`).
+- Changed the EOF token text in `Scanner` to `"<EOF>"` and deprecated the 3-argument `Scanner(input, eofType, eofText)` constructor.
+- Added `consumeIgnoreCase(...)` and `tryConsumeIgnoreCase(...)` to `Scanner` and deprecated the `ignoreCase` parameter overloads.
+- Deprecated the `Scanner` inline-regex constructor, `Filter`, and `RegularExpressions.NUMBER` (replaced by `Lexer`, `Sequence.filter` on `Lexer.tokenize(...)`, and `RegularExpressions.UNSIGNED_NUMBER`).
 - Removed `ConfigurableExpressionParser` (`org.kobjects.parsek.expressionparser`).
 - Made `Operator` a `sealed class` and added a `PrattParser<S, Unit, R>.parseExpression(scanner)` overload.
 - Fixed `RegularExpressions.SYMBOL` escaping for JS/Wasm regex compatibility and dropped empty Javadoc JARs to reduce artifact size.
@@ -121,7 +126,7 @@ operates on a scanner, is stateless and should be shared / reused.
 
 ### 0.9.0 (2024-07-10)
 - Added `Filter` base class and expanded `RegularExpressions`.
-- Added the `mython` indentation-based language example (`NewlineFilter`).
+- Added the `mython` indentation-based language example.
 
 ### 0.8.1 (2024-06-16)
 - Enabled `wasmJs` target.

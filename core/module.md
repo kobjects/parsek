@@ -4,5 +4,4 @@ Contains the Pratt parser.
 
 # Package org.kobjects.parsek.tokenizer
 
-Contains the lexer, scanner and some utilities such as a filter base class and some
-common regular expressions.
+Contains the lexer, scanner, token representation, and common regular expressions.

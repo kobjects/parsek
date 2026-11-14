@@ -5,23 +5,20 @@ package org.kobjects.parsek.tokenizer
  *
  * Define the token rules once (for example as an `object`) and call [scanner] or [tokenize]
  * for each input string. The type parameter [T] indicates the token type; typically an enum
- * consisting of values such as `IDENTIFIER`, `NUMBER`, `EOF`, etc.
+ * consisting of values such as `IDENTIFIER`, `NUMBER`, `EOF`, etc. If you prefer not to add
+ * an `EOF` entry to your enum, use a nullable type (`Lexer<TokenType?>`) with `null` as [eofType];
+ * similarly, use `Lexer<Unit?>` with `null` as [eofType] (and `Unit` for emitted tokens) when
+ * token types aren't needed at all.
  */
 open class Lexer<T>(
     /** Token type reported at the end of input by [scanner]. */
     val eofType: T,
     /**
-     * Pairs of regular expressions and the corresponding token type mapping functions. Multiple
-     * regular expressions may map to the same token type. Regular expressions mapping to null
-     * will be consumed without creating a token. The matches will be tried in the given order.
+     * Pairs of regular expressions and the corresponding token types. Multiple regular expressions
+     * may map to the same token type. Regular expressions mapped to null will be consumed without
+     * creating a token. The matches will be tried in the given order.
      */
-    private vararg val types: Pair<Regex, (String) -> T?>,
-    /**
-     * An optional normalization function for the token text.
-     */
-    private val textNormalization: (T, String) -> String = { _, s -> s },
-    /** Token text reported at the end of input by [scanner]. */
-    val eofText: String = "",
+    private vararg val types: Pair<Regex, T?>,
 ) {
     /**
      * Splits [input] into tokens, exposed as a lazy [Iterator].
@@ -30,17 +27,12 @@ open class Lexer<T>(
         TokenIterator(input, offset)
 
     /**
-     * Creates a [Scanner] over [input], optionally transforming the token stream via [filter]
-     * (for example, to strip context-sensitive tokens before lookahead buffering).
+     * Creates a [Scanner] over [input].
      */
     fun scanner(
         input: String,
         offset: Token<T>? = null,
-        filter: ((Iterator<Token<T>>) -> Iterator<Token<T>>)? = null,
-    ): Scanner<T> {
-        val tokens = tokenize(input, offset)
-        return Scanner(if (filter != null) filter(tokens) else tokens, eofType, eofText)
-    }
+    ): Scanner<T> = Scanner(tokenize(input, offset), eofType)
 
     private inner class TokenIterator(
         private val input: String,
@@ -81,14 +73,14 @@ open class Lexer<T>(
 
                         // Matches without type are not reported. Useful for whitespace and
                         // potentially comments.
-                        val type = candidate.second(text) ?: break
+                        val type = candidate.second ?: break
                         next = Token(
                             startPos,
                             startPos + (offset?.pos ?: 0),
                             startLine,
                             startCol,
                             type,
-                            textNormalization(type, text)
+                            text
                         )
                         return true
                     }

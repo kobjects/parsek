@@ -5,10 +5,10 @@ import org.kobjects.parsek.tokenizer.RegularExpressions
 
 object Pl0Lexer : Lexer<TokenType>(
     TokenType.EOF,
-    RegularExpressions.WHITESPACE to { null },
-    Regex("BEGIN|CALL|CONST|DO|END|IF|ODD|PROCEDURE|THEN|VAR|WHILE") to { TokenType.KEYWORD },
-    Regex("[0-9]+") to { TokenType.NUMBER },
-    Regex("[a-zA-Z]+") to { TokenType.IDENT },
-    Regex("<=|>=|=|<|>|#") to { TokenType.COMPARISON },
-    Regex("\\(|\\)|:=|;|\\.|!|\\?|\\+|-|\\*|/") to { TokenType.SYMBOL },
+    RegularExpressions.WHITESPACE to null,
+    Regex("BEGIN|CALL|CONST|DO|END|IF|ODD|PROCEDURE|THEN|VAR|WHILE") to TokenType.KEYWORD,
+    Regex("[0-9]+") to TokenType.NUMBER,
+    Regex("[a-zA-Z]+") to TokenType.IDENT,
+    Regex("<=|>=|=|<|>|#") to TokenType.COMPARISON,
+    Regex("\\(|\\)|:=|;|\\.|!|\\?|\\+|-|\\*|/") to TokenType.SYMBOL,
 )

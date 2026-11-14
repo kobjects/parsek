@@ -25,6 +25,28 @@ class ScannerTest {
         assertEquals("x", scanner.consume().text)
 
         assertEquals(null, scanner.current.type)
+        assertEquals("<EOF>", scanner.current.text)
+        assertTrue(scanner.eof)
+    }
+
+    @Test
+    fun testEmpty() {
+        val scanner = lexer.scanner("")
+
+        assertTrue(scanner.eof)
+        assertEquals(null, scanner.current.type)
+        assertEquals("<EOF>", scanner.current.text)
+        assertEquals(0, scanner.current.pos)
+        assertEquals(0, scanner.current.col)
+    }
+
+    @Test
+    fun testIgnoreCase() {
+        val scanner = lexer.scanner("Print hello")
+
+        assertFalse(scanner.tryConsume("print"))
+        assertTrue(scanner.tryConsumeIgnoreCase("print"))
+        assertEquals("hello", scanner.consumeIgnoreCase("HELLO").text)
         assertTrue(scanner.eof)
     }
 
@@ -32,10 +54,10 @@ class ScannerTest {
     companion object {
         val lexer = Lexer<TokenType?>(
             null,
-            RegularExpressions.WHITESPACE to { null },  // Don't report
-            RegularExpressions.SYMBOL to { TokenType.SYMBOL },
-            RegularExpressions.IDENTIFIER to { TokenType.IDENTIFIER },
-            RegularExpressions.UNSIGNED_NUMBER to { TokenType.NUMBER },
+            RegularExpressions.WHITESPACE to null,  // Don't report
+            RegularExpressions.SYMBOL to TokenType.SYMBOL,
+            RegularExpressions.IDENTIFIER to TokenType.IDENTIFIER,
+            RegularExpressions.UNSIGNED_NUMBER to TokenType.NUMBER,
         )
 
         fun assertTypeAndValue(type: TokenType, value: String, token: Token<TokenType?>) {
