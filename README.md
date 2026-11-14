@@ -107,11 +107,16 @@ operates on a scanner, is stateless and should be shared / reused.
 
 ## Version History
 
-### 0.20.0 (2026-11-14)
-- Refactored `Lexer` into a reusable factory exposing `tokenize(...)` and `scanner(...)`, mapping `Pair<Regex, T?>` directly (removing the mapping lambda, `textNormalization`, and `eofText`).
+### 0.21.0 (2026-11-14)
+- Simplified `Lexer` rules to `Pair<Regex, T?>` directly (removing the mapping lambda, `textNormalization`, `eofText`, and the `filter` parameter on `scanner(...)`), and documented nullable `eofType` / `Unit?` usage.
 - Changed the EOF token text in `Scanner` to `"<EOF>"` and deprecated the 3-argument `Scanner(input, eofType, eofText)` constructor.
 - Added `consumeIgnoreCase(...)` and `tryConsumeIgnoreCase(...)` to `Scanner` and deprecated the `ignoreCase` parameter overloads.
-- Deprecated the `Scanner` inline-regex constructor, `Filter`, and `RegularExpressions.NUMBER` (replaced by `Lexer`, `Sequence.filter` on `Lexer.tokenize(...)`, and `RegularExpressions.UNSIGNED_NUMBER`).
+- Deprecated `Filter` (replaced by `Sequence.filter` on `Lexer.tokenize(...)`) and removed `NewlineFilter` from the `mython` example.
+
+### 0.20.0 (2026-11-14)
+- Refactored `Lexer` into a reusable factory exposing `tokenize(...)` and `scanner(...)`.
+- Deprecated the `Scanner` inline-regex constructor (define a reusable `Lexer` instead).
+- Renamed `RegularExpressions.NUMBER` to `UNSIGNED_NUMBER` (with `NUMBER` deprecated for one release).
 - Removed `ConfigurableExpressionParser` (`org.kobjects.parsek.expressionparser`).
 - Made `Operator` a `sealed class` and added a `PrattParser<S, Unit, R>.parseExpression(scanner)` overload.
 - Fixed `RegularExpressions.SYMBOL` escaping for JS/Wasm regex compatibility and dropped empty Javadoc JARs to reduce artifact size.
