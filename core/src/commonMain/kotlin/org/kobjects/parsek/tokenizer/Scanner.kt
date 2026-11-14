@@ -1,13 +1,24 @@
 package org.kobjects.parsek.tokenizer
 
 /**
- * Class that wraps a "plain" lexer (implemented as a token iterator) for more comfortable token
- * analysis in a parser.
+ * Wraps a token [Iterator] (or tokenizes an input `String` directly via regular expression rules)
+ * with current-token inspection, unlimited lookahead, and consumption helpers for recursive-descent
+ * and Pratt parsers.
+ *
+ * Subclassing `Scanner` (for example `class MyScanner(input: String) : Scanner<TokenType>(...)`)
+ * is recommended for non-trivial parsers so parser functions can accept `MyScanner` instead of
+ * repeating `Scanner<TokenType>`, and custom helper methods can be added as needed. Direct
+ * instantiation (`Scanner(input, ...)`) is also supported for simple cases.
+ *
+ * Pass a dedicated enum value (e.g. `TokenType.EOF`) as [eofType] to keep `Token.type`
+ * non-nullable; pass `null` with a nullable type parameter (`Scanner<TokenType?>(input, null, ...)`)
+ * to avoid adding an `EOF` enum entry; or use `Scanner<Unit?>(input, null, ...)` (mapping emitted
+ * tokens to `Unit`) when token types aren't needed at all.
  */
 open class Scanner<T>(
     val input: Iterator<Token<T>>,
     val eofType: T,
-)  {
+) {
     private var eofText = "<EOF>"
 
     private val buffer = mutableListOf<Token<T>>()
@@ -32,9 +43,15 @@ open class Scanner<T>(
         this.currentMaterialized = Token(0, 0, 0, 0, eofType, eofText)
     }
 
-    @Deprecated("Define a reusable Lexer instead and call scanner(input).")
+    /**
+     * Convenience constructor that tokenizes [input] directly using [Lexer] with the given [types]
+     * rules (`Regex to tokenType`, or `Regex to null` for skipped tokens such as whitespace).
+     *
+     * Store [Regex] instances in constants (such as [RegularExpressions] or top-level `private val`s)
+     * rather than constructing them on each parse call.
+     */
     constructor(input: String, eofType: T, vararg types: Pair<Regex, T?>) : this(
-        Lexer(eofType, *types).tokenize(input),
+        Lexer(input, *types),
         eofType
     )
 

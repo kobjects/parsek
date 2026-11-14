@@ -1,6 +1,5 @@
 package org.kobjects.parsek.expression
 
-import org.kobjects.parsek.tokenizer.Lexer
 import org.kobjects.parsek.tokenizer.RegularExpressions
 import org.kobjects.parsek.tokenizer.Scanner
 import kotlin.math.pow
@@ -22,7 +21,16 @@ class ParserTest {
         NUMBER, IDENTIFIER, SYMBOL, EOF
     }
 
-    object Calculator : PrattParser<Scanner<TokenType>, Unit, Double>(
+    class CalculatorScanner(input: String) : Scanner<TokenType>(
+        input,
+        TokenType.EOF,
+        RegularExpressions.WHITESPACE to null,
+        RegularExpressions.SYMBOL to TokenType.SYMBOL,
+        RegularExpressions.IDENTIFIER to TokenType.IDENTIFIER,
+        RegularExpressions.UNSIGNED_NUMBER to TokenType.NUMBER,
+    )
+
+    object Calculator : PrattParser<CalculatorScanner, Unit, Double>(
         { scanner, _ -> scanner.consume(TokenType.NUMBER).text.toDouble() },
         { scanner, _, name, operand ->
             if (name == "?") Calculator.parseTernary(scanner, operand)
@@ -35,15 +43,7 @@ class ParserTest {
         Operator.Infix(1, "+", "-"),
         Operator.Suffix(0, "?")
     ) {
-        private val lexer = Lexer(
-            TokenType.EOF,
-            RegularExpressions.WHITESPACE to null,
-            RegularExpressions.SYMBOL to TokenType.SYMBOL,
-            RegularExpressions.IDENTIFIER to TokenType.IDENTIFIER,
-            RegularExpressions.UNSIGNED_NUMBER to TokenType.NUMBER,
-        )
-
-        fun parseTernary(scanner: Scanner<TokenType>, condition: Double): Double {
+        fun parseTernary(scanner: CalculatorScanner, condition: Double): Double {
             val trueValue = parseExpression(scanner, Unit, 0)
             scanner.consume(":")
             val falseValue = parseExpression(scanner, Unit, 0)
@@ -67,7 +67,7 @@ class ParserTest {
         }
 
         fun calculate(expression: String): Double {
-            val scanner = lexer.scanner(expression)
+            val scanner = CalculatorScanner(expression)
             val result = Calculator.parseExpression(scanner)
             scanner.requireEof()
             return result

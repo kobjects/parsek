@@ -1,15 +1,15 @@
 package org.kobjects.parsek.examples.mython
 
 import org.kobjects.parsek.examples.expressions.Evaluable
-import org.kobjects.parsek.examples.expressions.ExpressionParser
 import org.kobjects.parsek.examples.expressions.ExpressionLexer
+import org.kobjects.parsek.examples.expressions.ExpressionParser
+import org.kobjects.parsek.examples.expressions.ExpressionScanner
 import org.kobjects.parsek.examples.expressions.Literal
 import org.kobjects.parsek.examples.expressions.Symbol
 import org.kobjects.parsek.examples.expressions.TokenType
-import org.kobjects.parsek.tokenizer.Scanner
 import kotlin.math.max
 
-class MythonParser private constructor(val scanner: Scanner<TokenType>) {
+class MythonParser private constructor(val scanner: ExpressionScanner) {
     val functions = mutableMapOf<String, Lambda>()
 
     private fun parseExpression(): Evaluable = ExpressionParser.parseExpression(scanner)
@@ -128,14 +128,14 @@ class MythonParser private constructor(val scanner: Scanner<TokenType>) {
 
         fun parseProgram(code: String): Program {
             var bracketDepth = 0
-            val tokens = ExpressionLexer.tokenize(code).asSequence().filter { token ->
+            val tokens = ExpressionLexer(code).asSequence().filter { token ->
                 when (token.text) {
                     "{", "[", "(" -> bracketDepth++
                     "}", "]", ")" -> bracketDepth = max(0, bracketDepth - 1)
                 }
                 bracketDepth == 0 || token.type != TokenType.NEWLINE
             }
-            return MythonParser(Scanner(tokens.iterator(), TokenType.EOF)).parseProgram()
+            return MythonParser(ExpressionScanner(tokens.iterator())).parseProgram()
         }
     }
 }

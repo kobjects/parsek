@@ -2,6 +2,7 @@ package org.kobjects.parsek.scanner
 
 import org.kobjects.parsek.tokenizer.Lexer
 import org.kobjects.parsek.tokenizer.RegularExpressions
+import org.kobjects.parsek.tokenizer.Scanner
 import org.kobjects.parsek.tokenizer.Token
 import kotlin.test.*
 
@@ -13,7 +14,7 @@ class ScannerTest {
 
     @Test
     fun testSimple() {
-        val scanner = lexer.scanner("4 + x")
+        val scanner = createScanner("4 + x")
 
         assertFalse(scanner.eof)
         assertTypeAndValue(TokenType.NUMBER, "4", scanner.current)
@@ -31,7 +32,7 @@ class ScannerTest {
 
     @Test
     fun testEmpty() {
-        val scanner = lexer.scanner("")
+        val scanner = createScanner("")
 
         assertTrue(scanner.eof)
         assertEquals(null, scanner.current.type)
@@ -42,7 +43,7 @@ class ScannerTest {
 
     @Test
     fun testIgnoreCase() {
-        val scanner = lexer.scanner("Print hello")
+        val scanner = createScanner("Print hello")
 
         assertFalse(scanner.tryConsume("print"))
         assertTrue(scanner.tryConsumeIgnoreCase("print"))
@@ -50,9 +51,22 @@ class ScannerTest {
         assertTrue(scanner.eof)
     }
 
+    @Test
+    fun testLexerIterator() {
+        val tokens = Lexer(
+            "4 + x",
+            RegularExpressions.WHITESPACE to null,
+            RegularExpressions.SYMBOL to TokenType.SYMBOL,
+            RegularExpressions.IDENTIFIER to TokenType.IDENTIFIER,
+            RegularExpressions.UNSIGNED_NUMBER to TokenType.NUMBER,
+        ).asSequence().toList()
+
+        assertEquals(listOf("4", "+", "x"), tokens.map { it.text })
+    }
 
     companion object {
-        val lexer = Lexer<TokenType?>(
+        fun createScanner(input: String) = Scanner<TokenType?>(
+            input,
             null,
             RegularExpressions.WHITESPACE to null,  // Don't report
             RegularExpressions.SYMBOL to TokenType.SYMBOL,

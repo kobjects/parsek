@@ -1,12 +1,9 @@
 package org.kobjects.parsek.examples.expressions
 
-
 import org.kobjects.parsek.expression.Operator
 import org.kobjects.parsek.expression.PrattParser
-import org.kobjects.parsek.tokenizer.Scanner
 
-
-object ExpressionParser : PrattParser<Scanner<TokenType>, Unit, Evaluable>(
+object ExpressionParser : PrattParser<ExpressionScanner, Unit, Evaluable>(
     { scanner, _ -> ExpressionParser.parsePrimary(scanner) },
     { _, _, name, operand -> Symbol(name, ExpressionParser.unaryPrecedence(name), operand) },
     { _, _, name, left, right -> Symbol(name, ExpressionParser.binaryPrecedence(name), left, right) },
@@ -37,7 +34,7 @@ object ExpressionParser : PrattParser<Scanner<TokenType>, Unit, Evaluable>(
         else -> throw IllegalArgumentException("Unrecognized binary operator: $name")
     }
 
-    private fun parsePrimary(tokenizer: Scanner<TokenType>): Evaluable =
+    private fun parsePrimary(tokenizer: ExpressionScanner): Evaluable =
         when (tokenizer.current.type) {
             TokenType.NUMBER ->
                 Literal(tokenizer.consume().text.toDouble())
@@ -49,7 +46,7 @@ object ExpressionParser : PrattParser<Scanner<TokenType>, Unit, Evaluable>(
                 )
             }
             TokenType.IDENTIFIER -> {
-                var name = tokenizer.consume().text
+                val name = tokenizer.consume().text
                 val children = if (tokenizer.tryConsume("(")) parseList(tokenizer, ")") else emptyList()
                 Symbol(name, children)
             }
@@ -65,19 +62,18 @@ object ExpressionParser : PrattParser<Scanner<TokenType>, Unit, Evaluable>(
                 throw tokenizer.exception("Unrecognized primary expression.")
     }
 
-    fun parseExpression(tokenizer: Scanner<TokenType>) = parseExpression(tokenizer, Unit)
+    fun parseExpression(tokenizer: ExpressionScanner) = parseExpression(tokenizer, Unit)
 
-    fun parseList(tokenizer: Scanner<TokenType>, endToken: String): List<Evaluable> {
+    fun parseList(tokenizer: ExpressionScanner, endToken: String): List<Evaluable> {
         val parameters = mutableListOf<Evaluable>()
         if (tokenizer.current.text != endToken) {
-                do {
-                    parameters.add(parseExpression(tokenizer, Unit))
-                } while (tokenizer.tryConsume(","))
-            }
-            tokenizer.consume(endToken)
+            do {
+                parameters.add(parseExpression(tokenizer, Unit))
+            } while (tokenizer.tryConsume(","))
+        }
+        tokenizer.consume(endToken)
         return parameters.toList()
     }
 
-    fun eval(expression: String) = parseExpression(
-        ExpressionLexer.scanner(expression)).eval(RootContext)
+    fun eval(expression: String) = parseExpression(ExpressionScanner(expression)).eval(RootContext)
 }
