@@ -46,7 +46,7 @@ open class PrattParser<S : Scanner<*>, C, R> (
     }
 
     /**
-     * Parser an expression from the given tokenizer. Leftover tokens will be ignored and
+     * Parses an expression from the given [scanner]. Leftover tokens will be ignored and
      * may be handled by the caller.
      */
     fun parseExpression(scanner: S, context: C, precedence: Int = -1): R {
@@ -67,11 +67,16 @@ open class PrattParser<S : Scanner<*>, C, R> (
                 is Operator.Infix -> {
                     val right = parseExpression(scanner, context, symbol.precedence)
                     buildBinary(scanner, context, token, left, right)
-
                 }
-                else -> throw IllegalStateException("Unrecognized symbol type: $symbol")
+                is Operator.Prefix -> throw IllegalStateException("Unexpected prefix operator: $symbol")
             }
         }
         return left
     }
 }
+
+/**
+ * Convenience overload for [PrattParser] instances with `Unit` context.
+ */
+fun <S : Scanner<*>, R> PrattParser<S, Unit, R>.parseExpression(scanner: S): R =
+    parseExpression(scanner, Unit)

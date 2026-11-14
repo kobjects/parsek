@@ -1,9 +1,11 @@
 package org.kobjects.parsek.examples.json
 
-/** Parses JSON to Lists, Maps, Doubles, Strings, Booleans and nulls. */
-fun parseJson(jsonString: String): Any? = parseJson(JsonScanner(jsonString))
+import org.kobjects.parsek.tokenizer.Scanner
 
-fun parseJson(jsonScanner: JsonScanner): Any? {
+/** Parses JSON to Lists, Maps, Doubles, Strings, Booleans and nulls. */
+fun parseJson(jsonString: String): Any? = parseJson(JsonLexer.scanner(jsonString))
+
+fun parseJson(jsonScanner: Scanner<JsonTokenType>): Any? {
     val result = parseValue(jsonScanner)
     if (!jsonScanner.eof) {
         throw jsonScanner.exception("End of input expected.")
@@ -37,7 +39,7 @@ fun unquote(s: String): String {
     return sb.toString()
 }
 
-fun parseValue(jsonScanner: JsonScanner): Any? {
+fun parseValue(jsonScanner: Scanner<JsonTokenType>): Any? {
     val token = jsonScanner.consume()
     return when (token.type) {
         JsonTokenType.NUMBER -> token.text.trim().toDouble()
@@ -55,7 +57,7 @@ fun parseValue(jsonScanner: JsonScanner): Any? {
     }
 }
 
-fun parseArray(jsonScanner: JsonScanner): List<Any?> {
+fun parseArray(jsonScanner: Scanner<JsonTokenType>): List<Any?> {
     val result = mutableListOf<Any?>()
     if (jsonScanner.current.text != "]") {
         while (true) {
@@ -69,7 +71,7 @@ fun parseArray(jsonScanner: JsonScanner): List<Any?> {
     return result.toList()
 }
 
-fun parseObject(jsonScanner: JsonScanner): Map<String, Any?> {
+fun parseObject(jsonScanner: Scanner<JsonTokenType>): Map<String, Any?> {
     val result = mutableMapOf<String, Any?>()
     if (jsonScanner.current.type != JsonTokenType.OBJECT_END) {
         while (true) {

@@ -1,12 +1,11 @@
 package org.kobjects.parsek.examples.mython
 
-import org.kobjects.parsek.examples.expressions.ExpressionLexer
 import org.kobjects.parsek.examples.expressions.TokenType
 import org.kobjects.parsek.tokenizer.Filter
 import org.kobjects.parsek.tokenizer.Token
 import kotlin.math.max
 
-class NewlineFilter(lexer: ExpressionLexer) : Filter<TokenType>(lexer) {
+class NewlineFilter(tokens: Iterator<Token<TokenType>>) : Filter<TokenType>(tokens) {
     var bracketDepth = 0
 
     override fun accept(token: Token<TokenType>): Boolean {

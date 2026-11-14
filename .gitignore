@@ -28,9 +28,14 @@ build/
 # Gradle local stuff
 local.properties
 .gradle/
+.kotlin/
+
+# Generated CocoaPods specs
+*.podspec
 
 # IntelliJ
 .idea/
+/skills/
 
 # yarn
 kotlin-js-store/yarn.lock

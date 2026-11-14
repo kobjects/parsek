@@ -79,5 +79,5 @@ object ExpressionParser : PrattParser<Scanner<TokenType>, Unit, Evaluable>(
     }
 
     fun eval(expression: String) = parseExpression(
-        Scanner(ExpressionLexer(expression), TokenType.EOF)).eval(RootContext)
+        ExpressionLexer.scanner(expression)).eval(RootContext)
 }

@@ -23,7 +23,11 @@ object RegularExpressions {
      * Numbers excluding the sign prefix in order to avoid potential problems with
      * parsing expressions such as "3 - 4"
      */
-    val NUMBER = Regex("""(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?""")
+    val UNSIGNED_NUMBER = Regex("""(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?""")
+
+    @Deprecated("Use UNSIGNED_NUMBER instead.", ReplaceWith("UNSIGNED_NUMBER"))
+    val NUMBER: Regex
+        get() = UNSIGNED_NUMBER
 
     /**
      * Signed Numbers matching the JSON specification
@@ -54,6 +58,6 @@ object RegularExpressions {
      * All kinds of symbols, including composites used in various programming languages.
      *
      * This might be a good starting point, but should probably be replaced with a custom regex. */
-    // Escaping "}" seems to be required for Android.
-    val SYMBOL = Regex("""\+\+|\+|--|-|\*\*|\*|%|<=|>=|==|=|<>|<|>|&&|&|\|\||\||\^|!=|!|\(|\)|,|\?|;|:|~|\[|]|\{|\}|/""")
+    // Escaping "]" and "}" is required for JS / Android.
+    val SYMBOL = Regex("""\+\+|\+|--|-|\*\*|\*|%|<=|>=|==|=|<>|<|>|&&|&|\|\||\||\^|!=|!|\(|\)|,|\?|;|:|~|\[|\]|\{|\}|/""")
 }

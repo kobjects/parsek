@@ -26,7 +26,8 @@ class ParserTest {
         { scanner, _ -> scanner.consume(TokenType.NUMBER).text.toDouble() },
         { scanner, _, name, operand ->
             if (name == "?") Calculator.parseTernary(scanner, operand)
-            else  Calculator.evalUnary(name, operand ) },
+            else Calculator.evalUnary(name, operand)
+        },
         { _, _, name, left, right -> Calculator.evalBinary(name, left, right) },
         Operator.Infix(4, "^"),
         Operator.Prefix(3, "+", "-"),
@@ -34,6 +35,14 @@ class ParserTest {
         Operator.Infix(1, "+", "-"),
         Operator.Suffix(0, "?")
     ) {
+        private val lexer = Lexer(
+            TokenType.EOF,
+            RegularExpressions.WHITESPACE to { null },
+            RegularExpressions.SYMBOL to { TokenType.SYMBOL },
+            RegularExpressions.IDENTIFIER to { TokenType.IDENTIFIER },
+            RegularExpressions.UNSIGNED_NUMBER to { TokenType.NUMBER },
+        )
+
         fun parseTernary(scanner: Scanner<TokenType>, condition: Double): Double {
             val trueValue = parseExpression(scanner, Unit, 0)
             scanner.consume(":")
@@ -58,21 +67,10 @@ class ParserTest {
         }
 
         fun calculate(expression: String): Double {
-            val scanner = createScanner(expression)
-            val result = Calculator.parseExpression(scanner, Unit)
-            require(scanner.eof)
+            val scanner = lexer.scanner(expression)
+            val result = Calculator.parseExpression(scanner)
+            scanner.requireEof()
             return result
         }
-
-        private fun createScanner(input: String): Scanner<TokenType> =
-            Scanner(
-                Lexer(
-                    input,
-                    RegularExpressions.WHITESPACE to { null },
-                    RegularExpressions.SYMBOL to { TokenType.SYMBOL },
-                    RegularExpressions.IDENTIFIER to { TokenType.IDENTIFIER },
-                    RegularExpressions.NUMBER to { TokenType.NUMBER },
-                ),
-                TokenType.EOF)
     }
 }

@@ -44,6 +44,6 @@ def main():
             result.append(it)
         }
 
-        assertTrue(result.startsWith("1.0\n2.0\nFizz"), "Unexpected result $result")
+        assertTrue(result.startsWith("${1.0}\n${2.0}\nFizz"), "Unexpected result $result")
     }
 }

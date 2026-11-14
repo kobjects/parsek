@@ -1,6 +1,6 @@
 package org.kobjects.parsek.expression
 
-open class Operator private constructor(
+sealed class Operator(
     val precedence: Int,
     val names: Array<out String>
 ) {

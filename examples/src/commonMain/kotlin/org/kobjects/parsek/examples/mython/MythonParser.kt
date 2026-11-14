@@ -67,7 +67,6 @@ class MythonParser private constructor(val scanner: Scanner<TokenType>) {
         while(true) {
             if (scanner.current.type != TokenType.NEWLINE) {
                 val statement = parseStatement(depth)
-                println("parsed: $statement")
                 result.add(statement)
             }
             if (currentIndent() != depth) {
@@ -127,6 +126,6 @@ class MythonParser private constructor(val scanner: Scanner<TokenType>) {
     companion object {
 
         fun parseProgram(code: String) =
-            MythonParser(Scanner(NewlineFilter(ExpressionLexer(code)), TokenType.EOF)).parseProgram()
+            MythonParser(ExpressionLexer.scanner(code) { NewlineFilter(it) }).parseProgram()
     }
 }

@@ -9,8 +9,12 @@ open class Scanner<T>(
     val eofType: T,
     val eofText: String = ""
 )  {
-    constructor(input: String, eofType: T, vararg  types: Pair<Regex, T?>) : this(
-        Lexer(input, *types.map { p -> Pair<Regex, (String) -> T?>(p.first, { _ -> p.second }) }.toTypedArray()),
+    @Deprecated("Define a reusable Lexer instead and call scanner(input).")
+    constructor(input: String, eofType: T, vararg types: Pair<Regex, T?>) : this(
+        Lexer(
+            eofType,
+            *types.map { p -> Pair<Regex, (String) -> T?>(p.first, { _ -> p.second }) }.toTypedArray()
+        ).tokenize(input),
         eofType
     )
 
@@ -29,7 +33,7 @@ open class Scanner<T>(
     val eof: Boolean
         get() = current.type == eofType && current.text == eofText
 
-    /** Consumes the current token and returns its text content. */
+    /** Consumes and returns the current token. */
     fun consume(): Token<T> {
         if (eof) {
             throw exception("Trying to read past EOF")
@@ -50,7 +54,7 @@ open class Scanner<T>(
     }
 
     /**
-     * Consume and return a token with the given text value. If the current token type does not
+     * Consumes and returns a token with the given text value. If the current token text does not
      * match, an exception is thrown.
      */
     fun consume(
@@ -69,7 +73,7 @@ open class Scanner<T>(
      * If the current token text value matches the given string, it is consumed and true
      * is returned. Otherwise, false is returned.
      */
-    fun tryConsume(value: String, ignoreCase: Boolean = false, ): Boolean {
+    fun tryConsume(value: String, ignoreCase: Boolean = false): Boolean {
         if (current.text.equals(value, ignoreCase)) {
             consume()
             return true
@@ -97,7 +101,7 @@ open class Scanner<T>(
         return ParsingException(currentMaterialized, null, e)
     }
 
-    /** Creates an illegal state exception with position context information. */
+    /** Creates a parsing exception with position context information. */
     fun exception(message: String) = ParsingException(currentMaterialized, message)
 
 

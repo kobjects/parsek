@@ -13,10 +13,10 @@ class ProgramContext(
     override fun evalSymbol(name: String, children: List<Evaluable>, parameterContext: RuntimeContext): Any =
         program.functions[name]?.eval(children, parameterContext) ?: when (name) {
             "for" -> {
-                val range = children[1].eval(parameterContext) as Collection<Any>
+                val range = children[1].eval(parameterContext) as Iterable<*>
                 for (value in range) {
                     val loopContext = LocalContext(parameterContext)
-                    loopContext.symbols[(children[0] as Literal).value as String] = value
+                    loopContext.symbols[(children[0] as Literal).value as String] = value!!
                     children[2].eval(loopContext)
                 }
             }

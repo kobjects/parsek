@@ -8,10 +8,11 @@ import org.kobjects.parsek.examples.pl0.node.expression.*
 import org.kobjects.parsek.examples.pl0.node.statement.*
 import org.kobjects.parsek.expression.Operator
 import org.kobjects.parsek.expression.PrattParser
+import org.kobjects.parsek.tokenizer.Scanner
 
 // expression = [ "+"|"-"] term { ("+"|"-") term};
 // term = factor {("*"|"/") factor};
-object Pl0Parser : PrattParser<Pl0Scanner, ParsingContext, Expression>(
+object Pl0Parser : PrattParser<Scanner<TokenType>, ParsingContext, Expression>(
     { scanner, context -> Pl0Parser.parseFactor(scanner, context) },
     { _, _, name, operand -> if (name == "-") Negate(operand) else operand },
     { _, _, name, left, right -> BinaryOperation(name, left, right) },
@@ -21,13 +22,13 @@ object Pl0Parser : PrattParser<Pl0Scanner, ParsingContext, Expression>(
 ) {
 
     fun parseProgram(text: String): Program =
-        parseProgram(Pl0Scanner(text))
+        parseProgram(Pl0Lexer.scanner(text))
 
     // program = block "." .
-    fun parseProgram(scanner: Pl0Scanner): Program {
+    fun parseProgram(scanner: Scanner<TokenType>): Program {
         val result = Program(parseBlock(scanner, null))
         scanner.consume(".")
-        require(scanner.eof)
+        scanner.requireEof()
         return result
     }
 
@@ -36,7 +37,7 @@ object Pl0Parser : PrattParser<Pl0Scanner, ParsingContext, Expression>(
 //   [ "VAR" ident { "," ident } ";" ]
 //   { "PROCEDURE" ident ";" block ";" }
 //   statement .
-    private fun parseBlock(scanner: Pl0Scanner, parentContext: ParsingContext?): Block {
+    private fun parseBlock(scanner: Scanner<TokenType>, parentContext: ParsingContext?): Block {
         val symbols = mutableMapOf<String, Int?>()  // We use null as value for variables here.
         if (scanner.tryConsume("CONST")) {
             do {
@@ -66,7 +67,7 @@ object Pl0Parser : PrattParser<Pl0Scanner, ParsingContext, Expression>(
             val name = scanner.consume(TokenType.IDENT).text
             scanner.consume(";")
             if (procedureNames.contains(name)) {
-                scanner.exception("Duplicate procedure name $name")
+                throw scanner.exception("Duplicate procedure name $name")
             }
             procedureNames.add(name)  // Permit recursion
             val block = parseBlock(scanner, ParsingContext(parentContext, symbols, procedureNames))
@@ -88,7 +89,7 @@ object Pl0Parser : PrattParser<Pl0Scanner, ParsingContext, Expression>(
 //   | "BEGIN" statement {";" statement } "END"
 //   | "IF" condition "THEN" statement
 //   | "WHILE" condition "DO" statement ];
-    private fun parseStatement(scanner: Pl0Scanner, context: ParsingContext): Statement =
+    private fun parseStatement(scanner: Scanner<TokenType>, context: ParsingContext): Statement =
         if (scanner.current.type == TokenType.IDENT) {
             val variable = scanner.consume(TokenType.IDENT).text
             scanner.consume(":=")
@@ -131,7 +132,7 @@ object Pl0Parser : PrattParser<Pl0Scanner, ParsingContext, Expression>(
 
     // condition = "ODD" expression |
     //             expression ("="|"#"|"<"|"<="|">"|">=") expression ;
-    private fun parseCondition(scanner: Pl0Scanner, context: ParsingContext): Condition {
+    private fun parseCondition(scanner: Scanner<TokenType>, context: ParsingContext): Condition {
         if (scanner.tryConsume("ODD")) {
             return Odd(parseExpression(scanner, context));
         }
@@ -145,7 +146,7 @@ object Pl0Parser : PrattParser<Pl0Scanner, ParsingContext, Expression>(
     // building a right-hanging tree without extra complexity)
 
     // factor = ident | number | "(" expression ")";
-    private fun parseFactor(scanner: Pl0Scanner, context: ParsingContext): Expression =
+    private fun parseFactor(scanner: Scanner<TokenType>, context: ParsingContext): Expression =
         when (scanner.current.type) {
             TokenType.NUMBER ->
                 Number(scanner.consume(TokenType.NUMBER).text.toInt())
