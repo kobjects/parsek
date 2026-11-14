@@ -14,6 +14,8 @@ class ParserTest {
         assertEquals(-4.0, Calculator.calculate("4 - 4 - 4"))
         assertEquals(5.0, Calculator.calculate("3 + 2"))
         assertEquals(11.0, Calculator.calculate("3 + 2 * 4"))
+        assertEquals(2.0, Calculator.calculate("1 ? 2 : 3"))
+        assertEquals(2.0, Calculator.calculate("0 ? 1 : 2"))
     }
 
     enum class TokenType {
@@ -22,13 +24,24 @@ class ParserTest {
 
     object Calculator : PrattParser<Scanner<TokenType>, Unit, Double>(
         { scanner, _ -> scanner.consume(TokenType.NUMBER).text.toDouble() },
-        { _, _, name, operand -> Calculator.evalUnary(name, operand ) },
+        { scanner, _, name, operand ->
+            if (name == "?") Calculator.parseTernary(scanner, operand)
+            else  Calculator.evalUnary(name, operand ) },
         { _, _, name, left, right -> Calculator.evalBinary(name, left, right) },
-        Operator.Infix(3, "^"),
-        Operator.Prefix(2, "+", "-"),
-        Operator.Infix(1, "*", "/"),
-        Operator.Infix(0, "+", "-"),
+        Operator.Infix(4, "^"),
+        Operator.Prefix(3, "+", "-"),
+        Operator.Infix(2, "*", "/"),
+        Operator.Infix(1, "+", "-"),
+        Operator.Suffix(0, "?")
     ) {
+        fun parseTernary(scanner: Scanner<TokenType>, condition: Double): Double {
+            val trueValue = parseExpression(scanner, Unit, 0)
+            scanner.consume(":")
+            val falseValue = parseExpression(scanner, Unit, 0)
+
+            return if (condition != 0.0) trueValue else falseValue
+        }
+
         fun evalUnary(name: String, operand: Double) = when (name) {
             "-" -> -operand
             "+" -> operand
@@ -44,7 +57,12 @@ class ParserTest {
             else -> throw IllegalArgumentException("Unrecognized binary operator: $name")
         }
 
-        fun calculate(expression: String): Double = Calculator.parseExpression(createScanner(expression), Unit)
+        fun calculate(expression: String): Double {
+            val scanner = createScanner(expression)
+            val result = Calculator.parseExpression(scanner, Unit)
+            require(scanner.eof)
+            return result
+        }
 
         private fun createScanner(input: String): Scanner<TokenType> =
             Scanner(

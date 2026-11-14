@@ -73,11 +73,11 @@ For a simple example, please refer to the [JSON parser example](https://github.c
 
 ## Expression Parser
 
-The configurable expression parser  ([source](https://github.com/kobjects/parsek/blob/main/core/src/commonMain/kotlin/org/kobjects/parsek/expressionparser/ConfigurableExpressionParser.kt),
-[kdoc](https://kobjects.org/parsek/dokka/-parsek/org.kobjects.parsek.expressionparser/-configurable-expression-parser/)) 
-operates on a tokenizer, is stateless and should be shared / reused.
+The Pratt expression parser ([source](https://github.com/kobjects/parsek/blob/main/core/src/commonMain/kotlin/org/kobjects/parsek/expression/PrattParser.kt),
+[kdoc](https://kobjects.org/parsek/dokka/-parsek/org.kobjects.parsek.expression/-pratt-parser/))
+operates on a scanner, is stateless and should be shared / reused.
 
-- For ternary expressions, create a suffix expression and use the supplied tokenizer to consume the rest of the ternary.
+- For ternary expressions, create a suffix expression and use the supplied scanner to consume the rest of the ternary.
 - Functions / "Apply" can be implemented in a similar way. Alternatively, this can be implemented in primary expression 
 - parsing by checking for an opening brace after the primary expression.
 - "Grouping" brackets should be implemented where primary expressions are processed, too. 
@@ -86,11 +86,11 @@ operates on a tokenizer, is stateless and should be shared / reused.
 ### Expression Parser-Based Examples
 
  - A simple example evaluating mathematical expressions directly (opposed to building an explicit parse tree) can be 
-   found in the [tests](https://github.com/kobjects/parsek/blob/main/core/src/commonTest/kotlin/org/kobjects/parsek/expressionparser/ParserTest.kt)
+   found in the [tests](https://github.com/kobjects/parsek/blob/main/core/src/commonTest/kotlin/org/kobjects/parsek/expression/ParserTest.kt)
 
  - A complete [PL/0](https://en.wikipedia.org/wiki/PL/0) parser is included in the examples module to illustrate 
-   how to use the expression parser and tokenizer for a simple but computational complete language: 
-   [Parser.kt](https://github.com/kobjects/parsek/blob/main/examples/src/commonMain/kotlin/org/kobjects/parsek/examples/pl0/parser/Parser.kt),
+   how to use the expression parser and scanner for a simple but computational complete language: 
+   [Pl0Parser.kt](https://github.com/kobjects/parsek/blob/main/examples/src/commonMain/kotlin/org/kobjects/parsek/examples/pl0/parser/Pl0Parser.kt),
    [Pl0Test.kt](https://github.com/kobjects/parsek/blob/main/examples/src/commonTest/kotlin/org/kobjects/parsek/examples/pl0/Pl0Test.kt)
 
 - A parser for mathematical expressions: [ExpressionParser.kt](https://github.com/kobjects/parsek/blob/main/examples/src/commonMain/kotlin/org/kobjects/parsek/examples/expressions/ExpressionParser.kt), 

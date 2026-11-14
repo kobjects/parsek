@@ -42,7 +42,7 @@ object RegularExpressions {
      *
      * Additional forms of character escapes can be recognized (or rejected) in post-processing.
      */
-    val SINGLE_QUOTED_STRING = Regex("""'([^"\\]*(\\.[^'\\]*)*)'""")
+    val SINGLE_QUOTED_STRING = Regex("""'([^'\\]*(\\.[^'\\]*)*)'""")
 
     /**
      * Recognizes double-quoted strings using doubled double-quotes as escape for double-quotes,

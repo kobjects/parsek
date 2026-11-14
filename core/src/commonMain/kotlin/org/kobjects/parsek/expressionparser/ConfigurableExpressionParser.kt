@@ -12,6 +12,10 @@ import org.kobjects.parsek.tokenizer.Scanner
  * The parser is primarily configured by defining operators using the [prefix], [infix] and [suffix] companion functions,
  * defining operator names, types and precedences.
  */
+@Deprecated(
+    message = "Use org.kobjects.parsek.expression.PrattParser instead.",
+    replaceWith = ReplaceWith("PrattParser", "org.kobjects.parsek.expression.PrattParser"),
+)
 open class ConfigurableExpressionParser<S : Scanner<*>, C, R> (
     val parsePrimary: (S, C) -> R,
     vararg operators: Operators<S, C, R>,

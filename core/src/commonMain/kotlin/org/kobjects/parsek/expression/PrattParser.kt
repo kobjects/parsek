@@ -9,8 +9,9 @@ import org.kobjects.parsek.tokenizer.Scanner
  * - [C] is the type of the parsing context, typically holding variable definitions etc.
  * - [R] is the type of the parsed expression.
  *
- * The parser is primarily configured by defining operators using the [prefix], [infix] and [suffix] companion functions,
- * defining operator names, types and precedences.
+ * The parser is primarily configured by providing [buildUnary] and [buildBinary] callbacks along with
+ * [Operator] definitions ([Operator.Prefix], [Operator.Infix], [Operator.InfixRtl], [Operator.Suffix])
+ * specifying operator names and precedences.
  */
 open class PrattParser<S : Scanner<*>, C, R> (
     val parsePrimary: (S, C) -> R,

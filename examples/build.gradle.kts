@@ -1,7 +1,8 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     kotlin("multiplatform")
     kotlin("native.cocoapods")
-    application
 }
 
 group = "org.kobjects.parsek"
@@ -12,8 +13,8 @@ kotlin {
     iosArm64()
     iosSimulatorArm64()
     jvm {
-        compilations.all {
-            kotlinOptions.jvmTarget = "1.8"
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_1_8)
         }
     }
     js(IR) {

@@ -5,7 +5,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.0")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.3.21")
     }
 }
 
@@ -15,7 +15,3 @@ allprojects {
         mavenCentral()
     }
 }
-
-// tasks.register("clean", Delete::class) {
-//    delete(rootProject.buildDir)
-// }
